@@ -10,5 +10,14 @@ libraryDependencies ++= Seq(
   jdbc,
   anorm,
   cache,
-  ws
+  ws,
+  "org.mongodb" %% "casbah" % "2.5.0"
 )
+
+instrumentSettings
+
+ScoverageKeys.minimumCoverage := 95
+
+ScoverageKeys.failOnMinimumCoverage := true
+
+ScoverageKeys.excludedPackages in ScoverageCompile := "<empty>;controllers.*;views.*"

@@ -6,13 +6,16 @@ lazy val root = (project in file(".")).enablePlugins(PlayScala)
 
 scalaVersion := "2.11.1"
 
+scalacOptions += "-target:jvm-1.6"
+
 libraryDependencies ++= Seq(
   jdbc,
   anorm,
   cache,
-  ws,
-  "org.mongodb" %% "casbah" % "2.5.0"
+  ws
 )
+
+libraryDependencies += "org.mongodb" %% "casbah" % "2.7.3"
 
 instrumentSettings
 

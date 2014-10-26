@@ -12,7 +12,8 @@ libraryDependencies ++= Seq(
   jdbc,
   anorm,
   cache,
-  ws
+  ws,
+  "org.scalatest" % "scalatest_2.11" % "2.2.1" % "test"
 )
 
 libraryDependencies += "org.mongodb" %% "casbah" % "2.7.3"

@@ -7,6 +7,7 @@ import models.PasteTO
 import org.bson.types.ObjectId
 import com.mongodb.casbah.Imports._
 import org.apache.xalan.xsltc.compiler.ForEach
+import converters.PasteMongoConverters
 
 class PasteDaoTest extends FlatSpec with Matchers {
 	"Random string generator" should "create random strings" in {
@@ -32,9 +33,9 @@ class PasteDaoTest extends FlatSpec with Matchers {
 	
 	"PasteDao" should "be able to retrieve all the private pastes of a specific owner" in {
 		setUp
-		insertSampleDocument(true);
-		insertSampleDocument(true);
-		insertSampleDocument(true);
+		insertSampleDocument(true)
+		insertSampleDocument(true)
+		insertSampleDocument(true)
 		insertSampleDocument(false)
 		val query = PasteTO(null, null, owner = new ObjectId("54485f901adee7b53870bacb"), null, null, isPrivate = true)
 		val results = PasteDao.queryPastesOfOwner(query)
@@ -45,7 +46,44 @@ class PasteDaoTest extends FlatSpec with Matchers {
 		tearDown
 	}
 	
-	def insertSampleDocument(isPrivate: Boolean) = PasteDao.createPaste(new ObjectId("54485f901adee7b53870bacb"), "sample", "Sample Message", isPrivate)
+	"PasteDao" should "be able to retrieve all the public pastes of a specific owner" in {
+		setUp
+		insertSampleDocument(true)
+		insertSampleDocument(true)
+		insertSampleDocument(true)
+		insertSampleDocument(false)
+		val query = PasteTO(null, null, owner = new ObjectId("54485f901adee7b53870bacb"), null, null, isPrivate = false)
+		val results = PasteDao.queryPastesOfOwner(query)
+		assert(results.size == 1)
+		results.foreach { x =>
+			assert(!x.isPrivate) 
+		}
+		tearDown
+	}
+	
+	"PasteDao" should "be able to retrieve one paste by pasteId" in {
+		setUp
+		val original = PasteMongoConverters.convertFromMongoObject(insertSampleDocument(false))
+		insertSampleDocument(false)
+		val query = PasteTO(null, original.pasteId, null, null, null, false)
+		val result = PasteDao.queryPasteByPasteId(query)
+		assert(result != null)
+		assert(result._id == original._id)
+		assert(result.pasteId == original.pasteId)
+		assert(result.owner == original.owner)
+		assert(result.title == original.title)
+		assert(result.content == original.content)
+		assert(result.isPrivate == original.isPrivate)
+		tearDown
+	}
+	
+	"PasteDao" should "return null if it doesn't find paste by pasteId" in {
+		setUp
+		val query = PasteTO(null, "", null, null, null, false)
+		val result = PasteDao.queryPasteByPasteId(query)
+		assert(result == null)
+		tearDown
+	}
 	
 	def setUp = {
 		PasteDao.mongodbName = "lecartontest"
@@ -55,6 +93,8 @@ class PasteDaoTest extends FlatSpec with Matchers {
 	def tearDown = {
 		selfDestructButton
 	}
+	
+	def insertSampleDocument(isPrivate: Boolean) = PasteDao.createPaste(new ObjectId("54485f901adee7b53870bacb"), "sample", "Sample Message", isPrivate)
 	
     def getDocumentCount = MongoConnection()(PasteDao.mongodbName)(PasteDao.pasteCollectionName).count(MongoDBObject.empty)
 	

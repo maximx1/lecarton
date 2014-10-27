@@ -39,6 +39,27 @@ object PasteDao {
     }
     
     /**
+     * Gets one paste from the database.
+     */
+    def queryPasteByPasteId(pasteTO: PasteTO): PasteTO = {
+		val mongoConnection = MongoConnection()
+    	val collection = mongoConnection(mongodbName)(pasteCollectionName)
+    	val query = MongoDBObject("pasteId" -> pasteTO.pasteId)
+    	
+    	PasteMongoConverters.convertFromMongoObject(
+    		collection.findOne(query) match {
+    		  case Some(value) => value
+    		  case None => null
+    		}
+    	)
+    }
+    
+    /**
+     * A blanket exception to be thrown.
+     */
+    def mongoFail = throw new MongoException("Document not found")
+    
+    /**
      * Generates a sting of n length.
      */
     def generateRandomString(length: Int) = Random.alphanumeric.take(length).mkString

@@ -1,7 +1,17 @@
 @(message: String)
 
-@main("Welcome to Play") {
+@import helper._
 
-    @play20.welcome(message)
-
-}
+@header("created: " + message)
+	<body>
+		<link rel="stylesheet" type="text/css" href="@routes.Assets.at("stylesheets/main.css")">
+		<h1>@message</h1>
+		<div id="newPaste">
+			<form method="post" autocomplete="on">
+				<input id="titlebox" type="text" name="title"><br>
+				<textarea id="contentbox" name="content" rows="4" cols="50"></textarea> 
+				<input id="submitbutton" type="submit" value="Paste">
+			</form>
+		</div>
+	</body>
+</html>

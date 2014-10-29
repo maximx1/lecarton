@@ -35,10 +35,14 @@
 
 #submitbutton {
 	width: 702px;
-	height: 40px;
-    margin-top: -2px;
+	height: 45px;
+    margin-top: -5px;
     margin-left: -1px;
     padding: 10px;
+	 outline: 0;
+	 border: 0;
+	 background: none;
+	 background-color: rgb(243, 243, 243);
 }
 
 body {

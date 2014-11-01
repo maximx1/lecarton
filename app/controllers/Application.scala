@@ -1,5 +1,6 @@
 package controllers
 
+import com.sun.xml.internal.bind.v2.TODO
 import play.api._
 import play.api.mvc._
 import play.api.data._
@@ -32,5 +33,9 @@ object Application extends Controller {
 	  val result = PasteDao.queryPasteByPasteId(pasteQuery)
 	  Ok(views.html.paste(result))
   }
+
+  def search(searchScope: String, searchString: String) = TODO
+  def login = TODO
+  def attemptLogin(username: String, password: String) = TODO
 
 }

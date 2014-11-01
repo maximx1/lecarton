@@ -6,6 +6,9 @@
 GET     /                           controllers.Application.index
 POST	/							controllers.Application.createPaste
 GET		/p/:pasteId					controllers.Application.displayPaste(pasteId: String)
+GET     /login                      controllers.Application.login
+POST    /login                      controllers.Application.attemptLogin(username: String, password: String)
+GET     /search/:searchScope/:searchString controllers.Application.search(searchScope: String, searchString: String)
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.at(path="/public", file)

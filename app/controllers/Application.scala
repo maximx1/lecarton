@@ -1,5 +1,6 @@
 package controllers
 
+import business.PasteManager
 import com.sun.xml.internal.bind.v2.TODO
 import play.api._
 import play.api.mvc._
@@ -34,7 +35,12 @@ object Application extends Controller {
 	  Ok(views.html.paste(result))
   }
 
-  def search(searchScope: String, searchString: String) = TODO
+
+  def search(searchScope: String, searchString: String) = Action { implicit request =>
+    val result = PasteManager.handlePasteSearch(searchScope, searchString)
+    Ok(views.html.searchResults(result, searchScope, searchString))
+  }
+
   def login = TODO
   def attemptLogin(username: String, password: String) = TODO
 

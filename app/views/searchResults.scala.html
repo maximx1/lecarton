@@ -1,0 +1,38 @@
+@(pasteTOs: List[PasteTO], searchScope: String, searchParam: String)
+@header("Search: " + searchParam)
+	<body>
+        <link rel="stylesheet" type="text/css" href="@routes.Assets.at("stylesheets/main.css")">
+        <link rel="stylesheet" type="text/css" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+        <link rel="stylesheet" type="text/css" href="http://cdn.datatables.net/1.10.3/css/jquery.dataTables.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+        <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+        <script src="http://cdn.datatables.net/1.10.3/js/jquery.dataTables.min.js"></script>
+        <script src="@routes.Assets.at("javascripts/search_results.js")"></script>
+        @titlebar()
+		<div id="mainContainer">
+            <h1>Search results for "@searchParam"</h1>
+            <hr />
+            <h2>Under: @searchScope</h2>
+            <table id="searchResultsTable">
+                <thead>
+                    <tr>
+                        <th>Paste Id</th>
+                        <th>Title</th>
+                        <th>Content</th>
+                        <th>SearchScope</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @pasteTOs.map { pasteTO =>
+                        <tr>
+                            <td><a href="/p/@pasteTO.pasteId">@pasteTO.pasteId</a></td>
+                            <td>@pasteTO.title</td>
+                            <td>@pasteTO.content</td>
+                            <td>@searchScope</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+		</div>
+	</body>
+</html>

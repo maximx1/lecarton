@@ -15,7 +15,7 @@ var determineSearchRoute = function(searchParam) {
         return "/search/profiles/" + searchParam.substring("profile:".length)
     }
     else if(searchParam.startsWith("title:")) {
-        return "/search/titles/" + searchParam.substring("profile:".length)
+        return "/search/titles/" + searchParam.substring("title:".length)
     }
     else if(searchParam.startsWith("paste:")) {
         return "/search/pastes/" + searchParam.substring("paste:".length)

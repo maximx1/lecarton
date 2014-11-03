@@ -60,7 +60,24 @@ class PasteDaoTest extends FlatSpec with Matchers {
 		}
 		tearDown
 	}
-	
+
+  "PasteDao" should "be able to retrieve all public pastes matching title search" in {
+    setUp
+    insertSampleDocumentWithTitle(true, "sampleWithPrivate")
+    insertSampleDocumentWithTitle(false, "sample1")
+    insertSampleDocumentWithTitle(false, "sample2")
+    insertSampleDocumentWithTitle(false, "something without elpmas <- (reverse that) in the title")
+    val query = PasteTO(null, null, null, "sample", null, isPrivate = false)
+    val results = PasteDao.queryPasteByTitle(query)
+    results should have size 2
+    results.foreach { x =>
+      assert(!x.isPrivate)
+    }
+    results.filter(x => x.title == "sample1") should have size 1
+    results.filter(x => x.title == "sample2") should have size 1
+    tearDown
+  }
+
 	"PasteDao" should "be able to retrieve one paste by pasteId" in {
 		setUp
 		val original = PasteMongoConverters.convertFromMongoObject(insertSampleDocument(false))
@@ -95,8 +112,7 @@ class PasteDaoTest extends FlatSpec with Matchers {
 	}
 	
 	def insertSampleDocument(isPrivate: Boolean) = PasteDao.createPaste(new ObjectId("54485f901adee7b53870bacb"), "sample", "Sample Message", isPrivate)
-	
-    def getDocumentCount = MongoConnection()(PasteDao.mongodbName)(PasteDao.pasteCollectionName).count(MongoDBObject.empty)
-	
-    def selfDestructButton = MongoConnection()(PasteDao.mongodbName)(PasteDao.pasteCollectionName).remove(MongoDBObject.empty)
+  def insertSampleDocumentWithTitle(isPrivate: Boolean, title: String) = PasteDao.createPaste(new ObjectId("54485f901adee7b53870bacb"), title, "Sample Message", isPrivate)
+  def getDocumentCount = MongoConnection()(PasteDao.mongodbName)(PasteDao.pasteCollectionName).count(MongoDBObject.empty)
+  def selfDestructButton = MongoConnection()(PasteDao.mongodbName)(PasteDao.pasteCollectionName).remove(MongoDBObject.empty)
 }

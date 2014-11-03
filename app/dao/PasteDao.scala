@@ -31,27 +31,55 @@ object PasteDao {
 	 * Retrieves a paste based on the owner's id and if it's private or not.
 	 */
     def queryPastesOfOwner(pasteTO: PasteTO): List[PasteTO] = {
-    	val mongoConnection = MongoConnection()
-    	val collection = mongoConnection(mongodbName)(pasteCollectionName)
     	val query = MongoDBObject("owner" -> pasteTO.owner, "isPrivate" -> pasteTO.isPrivate)
-    	
-    	collection.find(query).map(x => PasteMongoConverters.convertFromMongoObject(x)).toList
+    	queryMultiplePastesBase(query)
     }
     
     /**
      * Gets one paste from the database.
      */
     def queryPasteByPasteId(pasteTO: PasteTO): PasteTO = {
-		val mongoConnection = MongoConnection()
-    	val collection = mongoConnection(mongodbName)(pasteCollectionName)
     	val query = MongoDBObject("pasteId" -> pasteTO.pasteId)
-    	
-    	PasteMongoConverters.convertFromMongoObject(
-    		collection.findOne(query) match {
-    		  case Some(value) => value
-    		  case None => null
-    		}
-    	)
+      querySinglePasteBase(query)
+    }
+
+  /**
+   * Gets all pastes that match the title string.
+   * @param pasteTO The source query data.
+   * @return All pastes matching the query.
+   */
+    def queryPasteByTitle(pasteTO:PasteTO): List[PasteTO] = {
+      val searchString = ".*" + pasteTO.title + ".*"
+      val query = MongoDBObject("title" -> searchString.r, "isPrivate" -> pasteTO.isPrivate)
+      queryMultiplePastesBase(query)
+    }
+
+  /**
+   *  The base query for a single paste.
+   * @param query Query for a single object.
+   * @return The paste found or null.
+   */
+    def querySinglePasteBase(query: MongoDBObject): PasteTO = {
+      val mongoConnection = MongoConnection()
+      val collection = mongoConnection(mongodbName)(pasteCollectionName)
+      PasteMongoConverters.convertFromMongoObject(
+        collection.findOne(query) match {
+          case Some(value) => value
+          case None => null
+        }
+      )
+
+    }
+
+  /**
+   * The base query for multiple pastes
+   * @param query Query for multiple objects
+   * @return The Pastes found or an empty list.
+   */
+    def queryMultiplePastesBase(query: MongoDBObject): List[PasteTO] = {
+      val mongoConnection = MongoConnection()
+      val collection = mongoConnection(mongodbName)(pasteCollectionName)
+      collection.find(query).map(x => PasteMongoConverters.convertFromMongoObject(x)).toList
     }
     
     /**

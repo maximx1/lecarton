@@ -36,7 +36,7 @@ object Application extends Controller {
   }
 
 
-  def search(searchScope: String, searchString: String) = Action { implicit request =>
+  def search(searchScope: String, searchString: String) = Action {
     val result = PasteManager.handlePasteSearch(searchScope, searchString)
     Ok(views.html.searchResults(result, searchScope, searchString))
   }

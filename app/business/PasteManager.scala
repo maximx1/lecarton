@@ -18,7 +18,7 @@ object PasteManager {
       if(searchScope == "titles") {
           val query = PasteTO(null, null, null, searchString, null, isPrivate = false)
           return PasteDao.queryPasteByTitle(query).map(
-            x => PasteTO(x._id, x.pasteId, x.owner, x.title, x.content.slice(0, 35), x.isPrivate)
+            x => { x.content = x.content.slice(0, 35);x }
           )
       }
       else {

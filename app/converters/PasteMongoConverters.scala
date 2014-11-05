@@ -5,6 +5,9 @@ import models.PasteTO
 import org.bson.types.ObjectId
 import com.mongodb.casbah.Imports._
 
+/**
+ * Mongo BSON mapping utility for Pastes.
+ */
 object PasteMongoConverters {
 	/**
 	 * A blanket exception for a missing field.

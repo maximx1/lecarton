@@ -83,11 +83,6 @@ object PasteDao {
     }
     
     /**
-     * A blanket exception to be thrown.
-     */
-    def mongoFail = throw new MongoException("Document not found")
-    
-    /**
      * Generates a sting of n length.
      */
     def generateRandomString(length: Int) = Random.alphanumeric.take(length).mkString

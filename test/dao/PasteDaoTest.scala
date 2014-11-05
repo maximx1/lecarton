@@ -31,7 +31,7 @@ class PasteDaoTest extends FlatSpec with Matchers {
 		tearDown
 	}
 	
-	"PasteDao" should "be able to retrieve all the private pastes of a specific owner" in {
+	it should "be able to retrieve all the private pastes of a specific owner" in {
 		setUp
 		insertSampleDocument(true)
 		insertSampleDocument(true)
@@ -46,7 +46,7 @@ class PasteDaoTest extends FlatSpec with Matchers {
 		tearDown
 	}
 	
-	"PasteDao" should "be able to retrieve all the public pastes of a specific owner" in {
+	it should "be able to retrieve all the public pastes of a specific owner" in {
 		setUp
 		insertSampleDocument(true)
 		insertSampleDocument(true)
@@ -61,7 +61,7 @@ class PasteDaoTest extends FlatSpec with Matchers {
 		tearDown
 	}
 
-  "PasteDao" should "be able to retrieve all public pastes matching title search" in {
+  it should "be able to retrieve all public pastes matching title search" in {
     setUp
     insertSampleDocumentWithTitle(true, "sampleWithPrivate")
     insertSampleDocumentWithTitle(false, "sample1")
@@ -78,7 +78,7 @@ class PasteDaoTest extends FlatSpec with Matchers {
     tearDown
   }
 
-	"PasteDao" should "be able to retrieve one paste by pasteId" in {
+	it should "be able to retrieve one paste by pasteId" in {
 		setUp
 		val original = PasteMongoConverters.convertFromMongoObject(insertSampleDocument(false))
 		insertSampleDocument(false)
@@ -94,23 +94,51 @@ class PasteDaoTest extends FlatSpec with Matchers {
 		tearDown
 	}
 	
-	"PasteDao" should "return null if it doesn't find paste by pasteId" in {
+	it should "return null if it doesn't find paste by pasteId" in {
 		setUp
 		val query = PasteTO(null, "", null, null, null, false)
 		val result = PasteDao.queryPasteByPasteId(query)
 		assert(result == null)
 		tearDown
 	}
+
+  "PasteConverter" should "throw Mongo Exception if a field is missing" in {
+    setUp
+    insertDocumentWithMissingField
+    val query = PasteTO(null, null, null, "asdf", null, isPrivate = false)
+    intercept[MongoException] {
+      PasteDao.queryPasteByTitle(query)
+    }
+    tearDown
+  }
 	
 	def setUp = {
 		PasteDao.mongodbName = "lecartontest"
 		selfDestructButton
 	}
-	
+
+  def setUp(dbName: String) = {
+    PasteDao.mongodbName = dbName
+    selfDestructButton
+  }
+
 	def tearDown = {
 		selfDestructButton
 	}
-	
+
+  def insertDocumentWithMissingField: MongoDBObject = {
+    val mongoConnection = MongoConnection()
+    val collection = mongoConnection(PasteDao.mongodbName)(PasteDao.pasteCollectionName)
+    val newObject = MongoDBObject(
+      "owner" -> "1234",
+      "title" -> "asdf",
+      "content" -> "asdf",
+      "isPrivate" -> false
+    )
+    collection += newObject
+    return newObject
+  }
+
 	def insertSampleDocument(isPrivate: Boolean) = PasteDao.createPaste(new ObjectId("54485f901adee7b53870bacb"), "sample", "Sample Message", isPrivate)
   def insertSampleDocumentWithTitle(isPrivate: Boolean, title: String) = PasteDao.createPaste(new ObjectId("54485f901adee7b53870bacb"), title, "Sample Message", isPrivate)
   def getDocumentCount = MongoConnection()(PasteDao.mongodbName)(PasteDao.pasteCollectionName).count(MongoDBObject.empty)

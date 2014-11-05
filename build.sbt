@@ -13,7 +13,8 @@ libraryDependencies ++= Seq(
   anorm,
   cache,
   ws,
-  "org.scalatest" % "scalatest_2.11" % "2.2.1" % "test"
+  "org.scalatest" % "scalatest_2.11" % "2.2.1" % "test",
+  "org.mindrot" % "jbcrypt" % "0.3m"
 )
 
 libraryDependencies += "org.mongodb" %% "casbah" % "2.7.3"

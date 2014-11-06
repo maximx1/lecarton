@@ -1,15 +1,29 @@
 package dao
 
-import org.scalatest.{FlatSpec, Matchers}
-import scala.collection.mutable.MutableList
+import de.flapdoodle.embed.mongo.{MongodProcess, MongodExecutable, MongodStarter}
+import org.scalatest.{ParallelTestExecution, BeforeAndAfter, FlatSpec, Matchers}
 import scala.collection.mutable.Set
 import models.PasteTO
 import org.bson.types.ObjectId
 import com.mongodb.casbah.Imports._
-import org.apache.xalan.xsltc.compiler.ForEach
+import com.github.simplyscala.{MongodProps, MongoEmbedDatabase}
 import converters.PasteMongoConverters
 
-class PasteDaoTest extends FlatSpec with Matchers {
+class PasteDaoTest extends FlatSpec with Matchers with BeforeAndAfter with MongoEmbedDatabase {
+
+  var mongoProps: MongodProps = null
+
+  before {
+    mongoProps = mongoStart()
+    PasteDao.mongodbName = "lecartontest"
+    selfDestructButton
+  }
+
+  after {
+    mongoStop(mongoProps)
+    selfDestructButton
+  }
+
 	"Random string generator" should "create random strings" in {
 		var i = 0
 		var randomStrings: Set[String] = Set()
@@ -22,17 +36,14 @@ class PasteDaoTest extends FlatSpec with Matchers {
 	}
 	
 	"PasteDao" should "be able to store a new paste" in {
-		setUp
 		val originalDocCount = getDocumentCount
 		val newObject = insertSampleDocument(false)
 		val newId = newObject.getAs[ObjectId]("_id").toString()
 		assert(originalDocCount < getDocumentCount)
 		assert(newId != null)
-		tearDown
 	}
 	
 	it should "be able to retrieve all the private pastes of a specific owner" in {
-		setUp
 		insertSampleDocument(true)
 		insertSampleDocument(true)
 		insertSampleDocument(true)
@@ -43,11 +54,9 @@ class PasteDaoTest extends FlatSpec with Matchers {
 		results.foreach { x =>
 			assert(x.isPrivate) 
 		}
-		tearDown
 	}
 	
 	it should "be able to retrieve all the public pastes of a specific owner" in {
-		setUp
 		insertSampleDocument(true)
 		insertSampleDocument(true)
 		insertSampleDocument(true)
@@ -58,11 +67,9 @@ class PasteDaoTest extends FlatSpec with Matchers {
 		results.foreach { x =>
 			assert(!x.isPrivate) 
 		}
-		tearDown
 	}
 
   it should "be able to retrieve all public pastes matching title search" in {
-    setUp
     insertSampleDocumentWithTitle(true, "sampleWithPrivate")
     insertSampleDocumentWithTitle(false, "sample1")
     insertSampleDocumentWithTitle(false, "sample2")
@@ -75,11 +82,9 @@ class PasteDaoTest extends FlatSpec with Matchers {
     }
     results.filter(x => x.title == "sample1") should have size 1
     results.filter(x => x.title == "sample2") should have size 1
-    tearDown
   }
 
 	it should "be able to retrieve one paste by pasteId" in {
-		setUp
 		val original = PasteMongoConverters.convertFromMongoObject(insertSampleDocument(false))
 		insertSampleDocument(false)
 		val query = PasteTO(null, original.pasteId, null, null, null, false)
@@ -91,40 +96,21 @@ class PasteDaoTest extends FlatSpec with Matchers {
 		assert(result.title == original.title)
 		assert(result.content == original.content)
 		assert(result.isPrivate == original.isPrivate)
-		tearDown
 	}
 	
 	it should "return null if it doesn't find paste by pasteId" in {
-		setUp
 		val query = PasteTO(null, "", null, null, null, false)
 		val result = PasteDao.queryPasteByPasteId(query)
 		assert(result == null)
-		tearDown
 	}
 
   "PasteConverter" should "throw Mongo Exception if a field is missing" in {
-    setUp
     insertDocumentWithMissingField
     val query = PasteTO(null, null, null, "asdf", null, isPrivate = false)
     intercept[MongoException] {
       PasteDao.queryPasteByTitle(query)
     }
-    tearDown
   }
-	
-	def setUp = {
-		PasteDao.mongodbName = "lecartontest"
-		selfDestructButton
-	}
-
-  def setUp(dbName: String) = {
-    PasteDao.mongodbName = dbName
-    selfDestructButton
-  }
-
-	def tearDown = {
-		selfDestructButton
-	}
 
   def insertDocumentWithMissingField: MongoDBObject = {
     val mongoConnection = MongoConnection()

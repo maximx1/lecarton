@@ -16,7 +16,7 @@ object ProfileDao {
 	 * Creates a brand new profile.
 	 */
     def createUserProfile(username: String, password: String, email: String): MongoDBObject = {
-        val mongoConnection = MongoConnection()
+        val mongoConnection = MongoConnection("localhost", 12345)
         val collection = mongoConnection(mongodbName)(profileCollectionName)
         val newObject = MongoDBObject(
             "username" -> username,

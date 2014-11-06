@@ -14,10 +14,10 @@ libraryDependencies ++= Seq(
   cache,
   ws,
   "org.scalatest" % "scalatest_2.11" % "2.2.1" % "test",
-  "org.mindrot" % "jbcrypt" % "0.3m"
+  "org.mindrot" % "jbcrypt" % "0.3m",
+  "org.mongodb" %% "casbah" % "2.7.3",
+  "com.github.simplyscala" %% "scalatest-embedmongo" % "0.2.2" % "test"
 )
-
-libraryDependencies += "org.mongodb" %% "casbah" % "2.7.3"
 
 instrumentSettings
 
@@ -26,3 +26,5 @@ ScoverageKeys.minimumCoverage := 90
 ScoverageKeys.failOnMinimumCoverage := true
 
 ScoverageKeys.excludedPackages in ScoverageCompile := "<empty>;controllers.*;views.*"
+
+parallelExecution in Test := false

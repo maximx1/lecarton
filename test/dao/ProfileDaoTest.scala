@@ -23,18 +23,19 @@ class ProfileDaoTest extends FlatSpec with Matchers {
   it should "be able to create a new profile with selected id" in {
     setUp
     val originalDocCount = getDocumentCount
-    val newObject = insertSampleDocumentWithForcedId
+    val randVal = new ObjectId()
+    val newObject = insertSampleDocumentWithForcedId(randVal.toString)
     val newId = newObject.getAs[ObjectId]("_id").get
-    assert(originalDocCount < getDocumentCount)
-    assert(newId == "54485f901adee7b53870bacb")
+    assert(newId == randVal)
     tearDown
   }
 
 	it should "be able to retrieve user profile by _id" in {
 		setUp
 		insertSampleDocument
-    insertSampleDocumentWithForcedId
-    val searchId = new ObjectId("54485f901adee7b53870bacb")
+    val randVal = new ObjectId()
+    insertSampleDocumentWithForcedId(randVal.toString)
+    val searchId = randVal
 		val query = ProfileTO(_id = searchId, null, null, null)
 		val results = ProfileDao.queryUserProfileById(query)
 		results should not be null
@@ -44,7 +45,7 @@ class ProfileDaoTest extends FlatSpec with Matchers {
 
   it should "fail to retrieve user profile by _id if profile doesn't exist" in {
     setUp
-    val searchId = new ObjectId("54485f901adee7b53870bacb")
+    val searchId = new ObjectId("544123901adee7b53870bacb")
     val query = ProfileTO(_id = searchId, null, null, null)
     val results = ProfileDao.queryUserProfileById(query)
     results should be (null)
@@ -54,7 +55,8 @@ class ProfileDaoTest extends FlatSpec with Matchers {
   it should "be able to retrieve user profile by username" in {
     setUp
     insertSampleDocument
-    insertSampleDocumentWithForcedId
+    val randVal = new ObjectId()
+    insertSampleDocumentWithForcedId(randVal.toString)
     val query = ProfileTO(null, "AAAA", null, null)
     val results = ProfileDao.queryUserProfileByUsername(query)
     results should not be null
@@ -70,7 +72,17 @@ class ProfileDaoTest extends FlatSpec with Matchers {
     tearDown
   }
 
-	def setUp = {
+  "ProfileConverter" should "throw Mongo Exception if a field is missing" in {
+    setUp
+    insertDocumentWithMissingField
+    val query = ProfileTO(null, "asdf", null, null)
+    intercept[MongoException] {
+      ProfileDao.queryUserProfileByUsername(query)
+    }
+    tearDown
+  }
+
+  def setUp = {
 		ProfileDao.mongodbName = "lecartontest"
 		selfDestructButton
 	}
@@ -78,10 +90,21 @@ class ProfileDaoTest extends FlatSpec with Matchers {
 	def tearDown = {
 		selfDestructButton
 	}
-	
+
+  def insertDocumentWithMissingField: MongoDBObject = {
+    val mongoConnection = MongoConnection()
+    val collection = mongoConnection(ProfileDao.mongodbName)(ProfileDao.profileCollectionName)
+    val newObject = MongoDBObject(
+      "username" -> "asdf",
+      "email" -> "asdf"
+    )
+    collection += newObject
+    return newObject
+  }
+
 	def insertSampleDocument = ProfileDao.createUserProfile("AAAA", "hurtzip", "sample@email.com")
   def insertSampleDocument2 = ProfileDao.createUserProfile("AAAA", "hurtzip", "sample@gmail.com")
-  def insertSampleDocumentWithForcedId = ProfileDao.createUserProfile("AAAB", "hurtzip", "sample@email.com", new ObjectId("54485f901adee7b53870bacb"))
+  def insertSampleDocumentWithForcedId(id: String) = ProfileDao.createUserProfile("AAAB", "hurtzip", "sample@email.com", new ObjectId(id))
   def getDocumentCount = MongoConnection()(ProfileDao.mongodbName)(ProfileDao.profileCollectionName).count(MongoDBObject.empty)
   def selfDestructButton = MongoConnection()(ProfileDao.mongodbName)(ProfileDao.profileCollectionName).remove(MongoDBObject.empty)
 }

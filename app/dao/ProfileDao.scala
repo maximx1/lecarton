@@ -73,22 +73,5 @@ object ProfileDao {
           case None => null
         }
       )
-
     }
-
-  /**
-   * The base query for multiple profiles
-   * @param query Query for multiple objects
-   * @return The Pastes found or an empty list.
-   */
-    def queryMultipleProfilesBase(query: MongoDBObject): List[ProfileTO] = {
-      val mongoConnection = MongoConnection()
-      val collection = mongoConnection(mongodbName)(profileCollectionName)
-      collection.find(query).map(x => ProfileMongoConverters.convertFromMongoObject(x)).toList
-    }
-    
-    /**
-     * A blanket exception to be thrown.
-     */
-    def mongoFail = throw new MongoException("Document not found")
 }

@@ -21,7 +21,7 @@ libraryDependencies += "org.mongodb" %% "casbah" % "2.7.3"
 
 instrumentSettings
 
-ScoverageKeys.minimumCoverage := 95
+ScoverageKeys.minimumCoverage := 90
 
 ScoverageKeys.failOnMinimumCoverage := true
 

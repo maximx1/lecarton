@@ -6,7 +6,7 @@ import models.ProfileTO
 import converters.ProfileMongoConverters
 import org.mindrot.jbcrypt.BCrypt
 
-object ProfileDao {
+class ProfileDao {
   
 	var mongodbName: String = "lecarton"
 	var profileCollectionName: String = "profiles"

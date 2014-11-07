@@ -9,21 +9,26 @@ import com.mongodb.casbah.Imports._
 import com.github.simplyscala.{MongodProps, MongoEmbedDatabase}
 import converters.PasteMongoConverters
 
-class PasteDaoTest extends FunSpec with Matchers with BeforeAndAfter with BeforeAndAfterAll with MongoEmbedDatabase {
+class PasteDaoTest extends FunSpec with Matchers with BeforeAndAfter {
+
+  var pasteDao: PasteDao = null
 
   before {
-    PasteDao.mongodbName = "lecartontest"
+    pasteDao = new PasteDao
+    pasteDao.mongodbName = "lecartontest"
     selfDestructButton
   }
 
   after {
     selfDestructButton
+    pasteDao = null
   }
 
   describe("Random string generator") {
     it("should create random strings") {
       var i = 0
       var randomStrings: Set[String] = Set()
+      val pasteDao = new PasteDao
       for (i <- 1 to 1000) {
         randomStrings += PasteDao.generateRandomString(10)
       }
@@ -47,7 +52,7 @@ class PasteDaoTest extends FunSpec with Matchers with BeforeAndAfter with Before
       insertSampleDocument(true)
       insertSampleDocument(false)
       val query = PasteTO(null, null, owner = new ObjectId("54485f901adee7b53870bacb"), null, null, isPrivate = true)
-      val results = PasteDao.queryPastesOfOwner(query)
+      val results = pasteDao.queryPastesOfOwner(query)
       assert(results.size == 3)
       results.foreach { x =>
         assert(x.isPrivate)
@@ -60,7 +65,7 @@ class PasteDaoTest extends FunSpec with Matchers with BeforeAndAfter with Before
       insertSampleDocument(true)
       insertSampleDocument(false)
       val query = PasteTO(null, null, owner = new ObjectId("54485f901adee7b53870bacb"), null, null, isPrivate = false)
-      val results = PasteDao.queryPastesOfOwner(query)
+      val results = pasteDao.queryPastesOfOwner(query)
       assert(results.size == 1)
       results.foreach { x =>
         assert(!x.isPrivate)
@@ -73,7 +78,7 @@ class PasteDaoTest extends FunSpec with Matchers with BeforeAndAfter with Before
       insertSampleDocumentWithTitle(false, "sample2")
       insertSampleDocumentWithTitle(false, "something without elpmas <- (reverse that) in the title")
       val query = PasteTO(null, null, null, "sample", null, isPrivate = false)
-      val results = PasteDao.queryPasteByTitle(query)
+      val results = pasteDao.queryPasteByTitle(query)
       results should have size 2
       results.foreach { x =>
         assert(!x.isPrivate)
@@ -86,7 +91,7 @@ class PasteDaoTest extends FunSpec with Matchers with BeforeAndAfter with Before
       val original = PasteMongoConverters.convertFromMongoObject(insertSampleDocument(false))
       insertSampleDocument(false)
       val query = PasteTO(null, original.pasteId, null, null, null, false)
-      val result = PasteDao.queryPasteByPasteId(query)
+      val result = pasteDao.queryPasteByPasteId(query)
       assert(result != null)
       assert(result._id == original._id)
       assert(result.pasteId == original.pasteId)
@@ -98,7 +103,7 @@ class PasteDaoTest extends FunSpec with Matchers with BeforeAndAfter with Before
 
     it("should return null if it doesn't find paste by pasteId") {
       val query = PasteTO(null, "", null, null, null, false)
-      val result = PasteDao.queryPasteByPasteId(query)
+      val result = pasteDao.queryPasteByPasteId(query)
       assert(result == null)
     }
   }
@@ -109,14 +114,14 @@ class PasteDaoTest extends FunSpec with Matchers with BeforeAndAfter with Before
       insertDocumentWithMissingField
       val query = PasteTO(null, null, null, "asdf", null, isPrivate = false)
       intercept[MongoException] {
-        PasteDao.queryPasteByTitle(query)
+        pasteDao.queryPasteByTitle(query)
       }
     }
   }
 
   def insertDocumentWithMissingField: MongoDBObject = {
     val mongoConnection = MongoConnection()
-    val collection = mongoConnection(PasteDao.mongodbName)(PasteDao.pasteCollectionName)
+    val collection = mongoConnection(pasteDao.mongodbName)(pasteDao.pasteCollectionName)
     val newObject = MongoDBObject(
       "owner" -> "1234",
       "title" -> "asdf",
@@ -127,8 +132,8 @@ class PasteDaoTest extends FunSpec with Matchers with BeforeAndAfter with Before
     return newObject
   }
 
-	def insertSampleDocument(isPrivate: Boolean) = PasteDao.createPaste(new ObjectId("54485f901adee7b53870bacb"), "sample", "Sample Message", isPrivate)
-  def insertSampleDocumentWithTitle(isPrivate: Boolean, title: String) = PasteDao.createPaste(new ObjectId("54485f901adee7b53870bacb"), title, "Sample Message", isPrivate)
-  def getDocumentCount = MongoConnection()(PasteDao.mongodbName)(PasteDao.pasteCollectionName).count(MongoDBObject.empty)
-  def selfDestructButton = MongoConnection()(PasteDao.mongodbName)(PasteDao.pasteCollectionName).remove(MongoDBObject.empty)
+	def insertSampleDocument(isPrivate: Boolean) = pasteDao.createPaste(new ObjectId("54485f901adee7b53870bacb"), "sample", "Sample Message", isPrivate)
+  def insertSampleDocumentWithTitle(isPrivate: Boolean, title: String) = pasteDao.createPaste(new ObjectId("54485f901adee7b53870bacb"), title, "Sample Message", isPrivate)
+  def getDocumentCount = MongoConnection()(pasteDao.mongodbName)(pasteDao.pasteCollectionName).count(MongoDBObject.empty)
+  def selfDestructButton = MongoConnection()(pasteDao.mongodbName)(pasteDao.pasteCollectionName).remove(MongoDBObject.empty)
 }

@@ -5,7 +5,7 @@ import scala.util.Random
 import models.PasteTO
 import converters.PasteMongoConverters
 
-object PasteDao {
+class PasteDao {
   
 	var mongodbName: String = "lecarton"
 	var pasteCollectionName: String = "pastes"
@@ -17,7 +17,7 @@ object PasteDao {
         val mongoConnection = MongoConnection()
         val collection = mongoConnection(mongodbName)(pasteCollectionName)
         val newObject = MongoDBObject(
-            "pasteId" -> generateRandomString(8),
+            "pasteId" -> PasteDao.generateRandomString(8),
             "owner" -> owner,
             "title" -> title,
             "content" -> message,
@@ -81,9 +81,11 @@ object PasteDao {
       val collection = mongoConnection(mongodbName)(pasteCollectionName)
       collection.find(query).map(x => PasteMongoConverters.convertFromMongoObject(x)).toList
     }
-    
-    /**
-     * Generates a sting of n length.
-     */
-    def generateRandomString(length: Int) = Random.alphanumeric.take(length).mkString
+}
+
+object PasteDao {
+  /**
+   * Generates a sting of n length.
+   */
+  def generateRandomString(length: Int) = Random.alphanumeric.take(length).mkString
 }

@@ -14,7 +14,7 @@ object PasteDao {
 	 * Creates a brand new paste.
 	 */
     def createPaste(owner: ObjectId, title: String, message: String, isPrivate: Boolean): MongoDBObject = {
-        val mongoConnection = MongoConnection("localhost", 12345)
+        val mongoConnection = MongoConnection()
         val collection = mongoConnection(mongodbName)(pasteCollectionName)
         val newObject = MongoDBObject(
             "pasteId" -> generateRandomString(8),

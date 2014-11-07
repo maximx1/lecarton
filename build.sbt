@@ -28,3 +28,5 @@ ScoverageKeys.failOnMinimumCoverage := true
 ScoverageKeys.excludedPackages in ScoverageCompile := "<empty>;controllers.*;views.*"
 
 parallelExecution in Test := false
+
+testOptions in Test += Tests.Argument("-oF")

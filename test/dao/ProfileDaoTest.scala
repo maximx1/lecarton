@@ -5,9 +5,7 @@ import models.ProfileTO
 import org.bson.types.ObjectId
 import org.scalatest._
 
-import com.github.simplyscala.{MongodProps, MongoEmbedDatabase}
-
-class ProfileDaoTest extends FunSpec with Matchers with BeforeAndAfter with MongoEmbedDatabase {
+class ProfileDaoTest extends FunSpec with Matchers with BeforeAndAfter {
 
   var profileDao: ProfileDao = new ProfileDao
 

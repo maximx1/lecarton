@@ -24,9 +24,9 @@ object Application extends Controller {
   }
   
   def createPaste = Action { implicit request =>
-	val (title, content) = newPasteForm.bindFromRequest.get
-	val result = (new PasteDao).createPaste(new ObjectId("54485f901adee7b53870bacb"), title, content, false)
-	Ok(views.html.index(result.getAs[String]("pasteId").get))
+    val (title, content) = newPasteForm.bindFromRequest.get
+    val result = (new PasteDao).createPaste(new ObjectId("54485f901adee7b53870bacb"), title, content, false)
+    Ok(views.html.index(result.getAs[String]("pasteId").get))
   }
   
   def displayPaste(pasteId: String) = Action {

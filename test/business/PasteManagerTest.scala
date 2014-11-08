@@ -1,11 +1,10 @@
 package business
 
-import com.github.simplyscala.MongoEmbedDatabase
 import dao.PasteDao
 import models.PasteTO
 import org.bson.types.ObjectId
 import org.scalatest.mock.MockitoSugar
-import org.scalatest.{FlatSpec, BeforeAndAfter, Matchers, FunSpec}
+import org.scalatest.{FlatSpec, BeforeAndAfter, Matchers}
 import org.mockito.Mockito
 
 class PasteManagerTest extends FlatSpec with Matchers with BeforeAndAfter with MockitoSugar {

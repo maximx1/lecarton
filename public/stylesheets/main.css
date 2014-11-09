@@ -54,6 +54,10 @@
     width: 100%;
 }
 
+.width100p {
+    width: 100%;
+}
+
 .errorMessage {
     color: red;
 }

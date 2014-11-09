@@ -13,12 +13,12 @@
             <div id="loginForm">
                 <h1>Login</h1>
                 <p class="errorMessage">@if(errorMessage == null) { &nbsp } else { @errorMessage }</p>
-                <form method="post" autocomplete="on">
-                    <input id="usernameField" type="text" name="username"><br>
-                    <input id="passwordField" type="password" name="password1"><br>
-                    <input id="passwordField" type="password" name="password2"><br>
-                    <input id="emailField" type="text" name="email"><br>
-                    <input id="submitbutton" type="submit" value="Login">
+                <form method="post" autocomplete="on" action="/createProfile">
+                    <input id="usernameField" class="width100p" type="text" name="username"><br>
+                    <input id="passwordField" class="width100p" type="password" name="password1"><br>
+                    <input id="passwordField" class="width100p" type="password" name="password2"><br>
+                    <input id="emailField" class="width100p" type="text" name="email"><br>
+                    <input id="submitbutton" type="submit" value="Create Account">
                 </form>
                 <br />
                 <a href="/login"><p>Already have an account?</p></a>

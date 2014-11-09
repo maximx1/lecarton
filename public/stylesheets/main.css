@@ -40,10 +40,19 @@
 }
 
 #loginForm {
-    width: 265px;
+    width: 341px;
     height: 45px;
     margin-left: auto;
     margin-right: auto;
+    display: table;
+}
+
+.loginFormLabel {
+    width: 76px;
+}
+
+.loginFormFields {
+    width: 265px;
 }
 
 #usernameField {

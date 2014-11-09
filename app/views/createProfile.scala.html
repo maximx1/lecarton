@@ -11,17 +11,55 @@
         @titlebar()(session)
         <div class="container">
             <div id="loginForm">
-                <h1>Login</h1>
-                <p class="errorMessage">@if(errorMessage == null) { &nbsp } else { @errorMessage }</p>
                 <form method="post" autocomplete="on" action="/createProfile">
-                    <input id="usernameField" class="width100p" type="text" name="username"><br>
-                    <input id="passwordField" class="width100p" type="password" name="password1"><br>
-                    <input id="passwordField" class="width100p" type="password" name="password2"><br>
-                    <input id="emailField" class="width100p" type="text" name="email"><br>
-                    <input id="submitbutton" type="submit" value="Create Account">
+                    <table>
+                        <th colspan="2"><h1>Login</h1></th>
+                        <tr>
+                            <td class="errorMessage">@if(errorMessage == null) { &nbsp } else { @errorMessage }</td>
+                        </tr>
+                        <tr>
+                            <td class="loginFormLabel">
+                                username
+                            </td>
+                            <td>
+                                <input id="usernameField" class="width100p" type="text" name="username">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="loginFormLabel">
+                                password
+                            </td>
+                            <td class="loginFormFields">
+                                <input id="passwordField" class="width100p" type="password" name="password1">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="loginFormLabel">
+                                &nbsp;
+                            </td>
+                            <td class="loginFormFields">
+                                <input id="passwordField" class="width100p" type="password" name="password2">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="loginFormLabel">
+                                email
+                            </td>
+                            <td class="loginFormFields">
+                                <input id="emailField" class="width100p" type="text" name="email">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="2"><input id="submitbutton" type="submit" value="Create Account"></td>
+                        </tr>
+                        <tr>
+                            <td colspan="2">&nbsp;</td>
+                        </tr>
+                        <tr>
+                            <td colspan="2"><a href="/login"><p>Already have an account?</p></a></td>
+                        </tr>
+                    </table>
                 </form>
-                <br />
-                <a href="/login"><p>Already have an account?</p></a>
             </div>
 		</div>
 	</body>

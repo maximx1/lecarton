@@ -11,15 +11,39 @@
         @titlebar()(session)
         <div class="container">
             <div id="loginForm">
-                <h1>Login</h1>
-                <p class="errorMessage">@if(errorMessage == null) { &nbsp } else { @errorMessage }</p>
                 <form method="post" autocomplete="on" action="/login">
-                    <input id="usernameField" type="text" name="username"><br>
-                    <input id="passwordField" type="password" name="password"><br>
-                    <input id="submitbutton" type="submit" value="Login">
+                    <table>
+                        <th colspan="2"><h1>Login</h1></th>
+                        <tr>
+                            <td class="errorMessage">@if(errorMessage == null) { &nbsp } else { @errorMessage }</td>
+                        </tr>
+                        <tr>
+                            <td class="loginFormLabel">
+                                username
+                            </td>
+                            <td>
+                                <input id="usernameField" type="text" name="username">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="loginFormLabel">
+                                password
+                            </td>
+                            <td class="loginFormFields">
+                                <input id="passwordField" type="password" name="password">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="2"><input id="submitbutton" type="submit" value="Login"></td>
+                        </tr>
+                        <tr>
+                            <td colspan="2">&nbsp;</td>
+                        </tr>
+                        <tr>
+                            <td colspan="2"><a href="/createProfile"><p>Or, create account</p></a></td>
+                        </tr>
+                    </table>
                 </form>
-                <br />
-                <a href="/createProfile"><p>Or, create account</p></a>
             </div>
 		</div>
 	</body>

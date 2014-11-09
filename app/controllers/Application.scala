@@ -97,7 +97,7 @@ object Application extends Controller {
         Ok(views.html.createProfile("There was an unspecified error, you should try to log in again")(request.session))
       }
       else {
-        Ok(views.html.index("Account successfully created, ready to create new paste")(request.session))
+        Redirect(routes.Application.index)
       }
     }
   }

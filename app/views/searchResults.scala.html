@@ -1,4 +1,4 @@
-@(pasteTOs: List[PasteTO], searchScope: String, searchParam: String)
+@(pasteTOs: List[PasteTO], searchScope: String, searchParam: String)(implicit session: play.api.mvc.Session)
 @header("Search: " + searchParam)
 	<body>
         <link rel="stylesheet" type="text/css" href="@routes.Assets.at("stylesheets/main.css")">
@@ -9,7 +9,7 @@
         <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
         <script src="http://cdn.datatables.net/1.10.3/js/jquery.dataTables.min.js"></script>
         <script src="@routes.Assets.at("javascripts/search_results.js")"></script>
-        @titlebar()
+        @titlebar()(session)
 		<div id="mainContainer">
             @if(pasteTOs.isEmpty) {
                 <h1 class="errorMessage">There were no results</h1>

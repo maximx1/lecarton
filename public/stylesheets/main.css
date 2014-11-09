@@ -39,6 +39,25 @@
 	border: solid 1px #CCCCCC;
 }
 
+#loginForm {
+    width: 265px;
+    height: 45px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#usernameField {
+    width:100%;
+}
+
+#passwordField {
+    width: 100%;
+}
+
+.errorMessage {
+    color: red;
+}
+
 #submitbutton {
 	width: 100%;
 	height: 45px;

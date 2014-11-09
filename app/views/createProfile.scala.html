@@ -1,0 +1,28 @@
+@(errorMessage: String)(implicit session: play.api.mvc.Session)
+
+@import helper._
+
+@header("Pastes: Create account")
+	<body>
+		<link rel="stylesheet" type="text/css" href="@routes.Assets.at("stylesheets/main.css")">
+		<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+        <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+        @titlebar()(session)
+        <div class="container">
+            <div id="loginForm">
+                <h1>Login</h1>
+                <p class="errorMessage">@if(errorMessage == null) { &nbsp } else { @errorMessage }</p>
+                <form method="post" autocomplete="on">
+                    <input id="usernameField" type="text" name="username"><br>
+                    <input id="passwordField" type="password" name="password1"><br>
+                    <input id="passwordField" type="password" name="password2"><br>
+                    <input id="emailField" type="text" name="email"><br>
+                    <input id="submitbutton" type="submit" value="Login">
+                </form>
+                <br />
+                <a href="/login"><p>Already have an account?</p></a>
+            </div>
+		</div>
+	</body>
+</html>

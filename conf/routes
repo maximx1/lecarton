@@ -7,9 +7,12 @@ GET     /                           controllers.Application.index
 POST	/							controllers.Application.createPaste
 GET		/p/:pasteId					controllers.Application.displayPaste(pasteId: String)
 GET     /login                      controllers.Application.login
-POST    /login                      controllers.Application.attemptLogin(username: String, password: String)
+POST    /login                      controllers.Application.attemptLogin
+GET     /logout                     controllers.Application.logout
 GET     /search/:searchScope/:searchString controllers.Application.search(searchScope: String, searchString: String)
 GET     /search/:searchScope/       controllers.ApplicationFail.searchFail(searchScope: String)
+GET     /createProfile              controllers.Application.createProfile
+POST    /createProfile              controllers.Application.attemptCreateProfile
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.at(path="/public", file)

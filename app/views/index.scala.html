@@ -1,4 +1,4 @@
-@(message: String)
+@(message: String)(implicit session: play.api.mvc.Session)
 
 @import helper._
 
@@ -8,7 +8,7 @@
 		<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
         <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
-        @titlebar()
+        @titlebar()(session)
         <div class="container">
         	<div class="row">
         		<div class="col-md-12 col-sm-12 col-xs-12"><h1>@message</h1></div>

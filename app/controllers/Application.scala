@@ -36,6 +36,7 @@ object Application extends Controller {
   )
   
   def index = Action { implicit request =>
+    val anonUserId: ObjectId = AnonUserManager.anonId.value //Hack to initialze anon user on new installs
 	  Ok(views.html.index("Create A New Paste")(request.session))
   }
   
@@ -124,7 +125,7 @@ object Application extends Controller {
       val pasteDao: PasteDao = new PasteDao
       var pasteResults = pasteDao.queryPastesOfOwner(publicPasteQuery)
 
-      if (profileResults._id eq sessionUserId.get) {
+      if (!sessionUserId.isEmpty && (profileResults._id eq sessionUserId.get)) {
         val privatePasteQuery = PasteTO(null, null, profileResults._id, null, null, true)
         pasteResults = pasteResults ::: pasteDao.queryPastesOfOwner(privatePasteQuery)
       }

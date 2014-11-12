@@ -6,9 +6,9 @@ import play.api._
 import play.api.mvc._
 import play.api.data._
 import play.api.data.Forms._
-import dao.{AnonUserManager, PasteDao}
+import dao.{ProfileDao, AnonUserManager, PasteDao}
 import org.bson.types.ObjectId
-import models.PasteTO
+import models.{ProfileTO, PasteTO}
 
 object Application extends Controller {
 
@@ -112,5 +112,26 @@ object Application extends Controller {
     }
   }
 
-  def loadProfile(username: String) = TODO
+  def loadProfile(username: String) = Action { implicit request =>
+    val sessionUserId = request.session.get("loggedInUser_id")
+
+    val profileQuery = ProfileTO(null, username, null, null)
+    val profileResults = (new ProfileDao).queryUserProfileByUsername(profileQuery)
+
+    if(profileResults != null) {
+
+      val publicPasteQuery = PasteTO(null, null, profileResults._id, null, null, false)
+      val pasteDao: PasteDao = new PasteDao
+      var pasteResults = pasteDao.queryPastesOfOwner(publicPasteQuery)
+
+      if (profileResults._id eq sessionUserId.get) {
+        val privatePasteQuery = PasteTO(null, null, profileResults._id, null, null, true)
+        pasteResults = pasteResults ::: pasteDao.queryPastesOfOwner(privatePasteQuery)
+      }
+      Ok(views.html.profile(profileResults, pasteResults)(request.session))
+    }
+    else {
+      Ok(views.html.profile(profileResults, List.empty)(request.session))
+    }
+  }
 }

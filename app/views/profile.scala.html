@@ -1,5 +1,5 @@
-@(pasteTO: PasteTO)(implicit session: play.api.mvc.Session)
-@header("Paste: " + pasteTO.pasteId)
+@(profileTO: ProfileTO, pastes: List[PasteTO])(implicit session: play.api.mvc.Session)
+@header("profile: " )
 	<body>
         <link rel="stylesheet" type="text/css" href="@routes.Assets.at("stylesheets/main.css")">
         <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
@@ -7,8 +7,7 @@
         <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
         @titlebar()(session)
 		<div id="mainContainer">
-			<h1>@pasteTO.title</h1>
-			<p>@pasteTO.content</p>
+			<h1>@profileTO.username</h1>
 		</div>
 	</body>
 </html>

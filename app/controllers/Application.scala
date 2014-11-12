@@ -97,8 +97,20 @@ object Application extends Controller {
         Ok(views.html.createProfile("There was an unspecified error, you should try to log in again")(request.session))
       }
       else {
-        Redirect(routes.Application.index)
+        Redirect(routes.Application.index) withSession("loggedInUsername" -> result.username, "loggedInUser_id" -> result._id.toString)
       }
     }
   }
+
+  def loadPersonalProfile = Action { implicit request =>
+    val sessionUsername = request.session.get("loggedInUsername")
+    if(sessionUsername.isEmpty) {
+      Redirect(routes.Application.login)
+    }
+    else {
+      Redirect(routes.Application.loadProfile(sessionUsername.get))
+    }
+  }
+
+  def loadProfile(username: String) = TODO
 }

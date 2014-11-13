@@ -18,11 +18,26 @@ class PasteManager {
    * @param searchString The search string to look for.
    * @return List of pastes matching everything.
    */
-  def handlePasteSearch(searchScope: String, searchString: String): List[PasteTO] = {
+  def handlePasteSearch(searchScope: String, searchString: String, sessionUserId: Option[String]): List[PasteTO] = {
       if(searchScope == "titles") {
-          val query = PasteTO(null, null, null, searchString, null, isPrivate = false)
-          return pasteDao.queryPasteByTitle(query).map(
-            x => { x.content = x.content.slice(0, 35);x }
+          val publicQuery = PasteTO(null, null, null, searchString, null, false)
+          var queryResults = pasteDao.queryPasteByTitle(publicQuery)
+          val privateQuery = PasteTO(null, null, null, searchString, null, true)
+          queryResults = queryResults ::: pasteDao.queryPasteByTitle(privateQuery)
+
+          return queryResults.filter({x =>
+            var isNotRestricted = true
+            if(sessionUserId.isEmpty) {
+              if(x.isPrivate) {
+                isNotRestricted = false
+              }
+            }
+            else if(sessionUserId.get != x.owner.toString) {
+              isNotRestricted = false
+            }
+            isNotRestricted
+          }).map(x => {
+              x.content = x.content.slice(0, 35);x }
           )
       }
       else if(searchScope == "profiles") {

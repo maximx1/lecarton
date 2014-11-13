@@ -1,8 +1,6 @@
 package controllers
 
 import business.{ProfileManager, PasteManager}
-import com.sun.xml.internal.bind.v2.TODO
-import play.api._
 import play.api.mvc._
 import play.api.data._
 import play.api.data.Forms._
@@ -66,7 +64,8 @@ object Application extends Controller {
   }
 
   def search(searchScope: String, searchString: String) = Action { implicit request =>
-    val result = (new PasteManager).handlePasteSearch(searchScope, searchString)
+    val sessionUserId = request.session.get("loggedInUser_id")
+    val result = (new PasteManager).handlePasteSearch(searchScope, searchString, sessionUserId)
     Ok(views.html.searchResults(result, searchScope, searchString)(request.session))
   }
 

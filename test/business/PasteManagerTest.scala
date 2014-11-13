@@ -86,6 +86,8 @@ class PasteManagerTest extends FlatSpec with Matchers with BeforeAndAfter with M
     results should have size 0
   }
 
+  
+
   lazy val createPasteSearchResult: List[PasteTO] = List(
     PasteTO(new ObjectId(), "aaaa", new ObjectId("54485f901adee7b53870bacb"), "title 1", PasteDao.generateRandomString(40), false),
     PasteTO(new ObjectId(), "bbbb", new ObjectId("54485f901adee7b53870bacb"), "title 2", PasteDao.generateRandomString(40), false),
@@ -94,4 +96,6 @@ class PasteManagerTest extends FlatSpec with Matchers with BeforeAndAfter with M
     PasteTO(new ObjectId(), "eeee", new ObjectId("54485f901adee7b53870bacb"), "title 5", PasteDao.generateRandomString(40), false),
     PasteTO(new ObjectId(), "ffff", new ObjectId("54485f901adee7b53870bacb"), "title 6", PasteDao.generateRandomString(40), false)
   )
+
+  lazy val createPasteSearchResult: List[PasteTO] = createPasteSearchResult.map(x=> {if(x.title == "title 4") x.isPrivate = true;x})
 }

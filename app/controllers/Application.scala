@@ -130,19 +130,8 @@ object Application extends Controller {
     val profileResults = (new ProfileDao).queryUserProfileByUsername(profileQuery)
 
     if(profileResults != null) {
-
-      val publicPasteQuery = PasteTO(null, null, profileResults._id, null, null, false)
-      val pasteDao: PasteDao = new PasteDao
-      var pasteResults = pasteDao.queryPastesOfOwner(publicPasteQuery)
-
-      if (!sessionUserId.isEmpty && (profileResults._id eq sessionUserId.get)) {
-        val privatePasteQuery = PasteTO(null, null, profileResults._id, null, null, true)
-        pasteResults = pasteResults ::: pasteDao.queryPastesOfOwner(privatePasteQuery)
-      }
-      Ok(views.html.profile(profileResults, pasteResults.map(
-            x => { x.content = x.content.slice(0, 35);x }
-          )
-      )(request.session))
+      val pasteManager: PasteManager = new PasteManager
+      Ok(views.html.profile(profileResults, pasteManager.handlePasteSearch("profiles", username, sessionUserId))(request.session))
     }
     else {
       Ok(views.html.profile(profileResults, List.empty)(request.session))

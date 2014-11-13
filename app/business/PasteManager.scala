@@ -21,24 +21,9 @@ class PasteManager {
   def handlePasteSearch(searchScope: String, searchString: String, sessionUserId: Option[String]): List[PasteTO] = {
       if(searchScope == "titles") {
           val publicQuery = PasteTO(null, null, null, searchString, null, false)
-          var queryResults = pasteDao.queryPasteByTitle(publicQuery)
           val privateQuery = PasteTO(null, null, null, searchString, null, true)
-          queryResults = queryResults ::: pasteDao.queryPasteByTitle(privateQuery)
-
-          return queryResults.filter({x =>
-            var isNotRestricted = true
-            if(sessionUserId.isEmpty) {
-              if(x.isPrivate) {
-                isNotRestricted = false
-              }
-            }
-            else if(sessionUserId.get != x.owner.toString) {
-              isNotRestricted = false
-            }
-            isNotRestricted
-          }).map(x => {
-              x.content = x.content.slice(0, 35);x }
-          )
+          val queryResults = pasteDao.queryPasteByTitle(publicQuery) ::: pasteDao.queryPasteByTitle(privateQuery)
+          return restrictAndFilterSearch(queryResults, sessionUserId)
       }
       else if(searchScope == "profiles") {
         val profileQuery = ProfileTO(null, searchString, null, null)
@@ -46,11 +31,37 @@ class PasteManager {
         if (profileData == null) {
           return List.empty
         }
-        val pasteQuery = PasteTO(null, null, profileData._id, null, null, isPrivate = false)
-        return pasteDao.queryPastesOfOwner(pasteQuery)
+        val publicQuery = PasteTO(null, null, profileData._id, null, null, false)
+        val privateQuery = PasteTO(null, null, profileData._id, null, null, true)
+        val queryResults = pasteDao.queryPastesOfOwner(publicQuery) ::: pasteDao.queryPastesOfOwner(privateQuery)
+        return restrictAndFilterSearch(queryResults, sessionUserId)
       }
       else {
           return List.empty
       }
+  }
+
+  /**
+   * Restricts a list of PasteTOs for a search behind the visibility filter and content box length
+   * @param queryResults The results from the dao.
+   * @param sessionUserId The optional session id
+   * @return The restricted results.
+   */
+  def restrictAndFilterSearch(queryResults: List[PasteTO], sessionUserId: Option[String]): List[PasteTO] = {
+    // TODO: make sure to test this.
+    return queryResults.filter({ x =>
+      var isNotRestricted = true
+      if(sessionUserId.isEmpty) {
+        if(x.isPrivate) {
+          isNotRestricted = false
+        }
+      }
+      else if(x.isPrivate && sessionUserId.get != x.owner.toString) {
+        isNotRestricted = false
+      }
+      isNotRestricted
+    }).map(
+      x => { x.content = x.content.slice(0, 35);x }
+    )
   }
 }

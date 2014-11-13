@@ -2,12 +2,49 @@
 @header("profile: " )
 	<body>
         <link rel="stylesheet" type="text/css" href="@routes.Assets.at("stylesheets/main.css")">
-        <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+        <link rel="stylesheet" type="text/css" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+        <link rel="stylesheet" type="text/css" href="http://cdn.datatables.net/1.10.3/css/jquery.dataTables.css">
+        <link rel="stylesheet" type="text/css" href="@routes.Assets.at("stylesheets/searchResults.css")">
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
         <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+        <script src="http://cdn.datatables.net/1.10.3/js/jquery.dataTables.min.js"></script>
+        <script src="@routes.Assets.at("javascripts/search_results.js")"></script>
         @titlebar()(session)
 		<div id="mainContainer">
-			<h1>@profileTO.username</h1>
+		    @if(profileTO != null) {
+                <h1>@profileTO.username's profile</h1>
+                <hr />
+                <div class="width100p height100px">
+                    @if(pastes.isEmpty) {
+                        <h3 class="errorMessage">User has no pastes</h3>
+                    } else {
+                        <br />
+                    }
+                </div>
+                <hr />
+                <table id="searchResultsTable">
+                    <thead>
+                        <tr>
+                            <th>Paste Id</th>
+                            <th>Title</th>
+                            <th>Content</th>
+                            <th>SearchScope</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @pastes.map { pasteTO =>
+                            <tr>
+                                <td><a href="/p/@pasteTO.pasteId">@pasteTO.pasteId</a></td>
+                                <td>@pasteTO.title</td>
+                                <td>@pasteTO.content</td>
+                                <td>profiles</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            } else {
+                <h1 class="errorMessage">Profile not found</h1>
+            }
 		</div>
 	</body>
 </html>

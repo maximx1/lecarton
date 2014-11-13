@@ -129,7 +129,10 @@ object Application extends Controller {
         val privatePasteQuery = PasteTO(null, null, profileResults._id, null, null, true)
         pasteResults = pasteResults ::: pasteDao.queryPastesOfOwner(privatePasteQuery)
       }
-      Ok(views.html.profile(profileResults, pasteResults)(request.session))
+      Ok(views.html.profile(profileResults, pasteResults.map(
+            x => { x.content = x.content.slice(0, 35);x }
+          )
+      )(request.session))
     }
     else {
       Ok(views.html.profile(profileResults, List.empty)(request.session))

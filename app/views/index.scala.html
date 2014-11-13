@@ -19,15 +19,15 @@
 						<input id="titlebox" type="text" name="title"><br>
 						<textarea id="contentbox" name="content" rows="4" cols="50"></textarea>
 						<input id="submitbutton" type="submit" value="Paste">
-                        <div class="make-switch switch-small">
-                            <input type="checkbox" checked data-on-text="private" data-off-text="public" name="isPrivate" value="true">
+                        <div class="make-switch">
+                            <input type="checkbox" checked data-on-text="public" data-off-text="private" name="isPublic" value="true">
                         </div>
 					</form>
 				</div>
 			</div>
 		</div>
         <script>
-            $("[name='isPrivate']").bootstrapSwitch();
+            $("[name='isPublic']").bootstrapSwitch();
         </script>
 	</body>
 </html>

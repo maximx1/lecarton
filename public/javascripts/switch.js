@@ -1,0 +1,1 @@
+$('#dimension-switch').bootstrapSwitch('setSizeClass', 'switch-small')

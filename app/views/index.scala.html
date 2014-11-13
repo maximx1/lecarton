@@ -4,10 +4,12 @@
 
 @header("created: " + message)
 	<body>
-		<link rel="stylesheet" type="text/css" href="@routes.Assets.at("stylesheets/main.css")">
+		<link rel="stylesheet" href='@routes.Assets.at("stylesheets/main.css")'>
 		<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+        <link rel="stylesheet" href='@routes.Assets.at("lib/bootstrap-switch.min.css")'>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
         <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+        <script src='@routes.Assets.at("lib/bootstrap-switch.min.js")'></script>
         @titlebar()(session)
         <div class="container">
         	<div class="row">
@@ -17,9 +19,15 @@
 						<input id="titlebox" type="text" name="title"><br>
 						<textarea id="contentbox" name="content" rows="4" cols="50"></textarea>
 						<input id="submitbutton" type="submit" value="Paste">
+                        <div class="make-switch switch-small">
+                            <input type="checkbox" checked data-on-text="private" data-off-text="public" name="isPrivate" value="true">
+                        </div>
 					</form>
 				</div>
 			</div>
 		</div>
+        <script>
+            $("[name='isPrivate']").bootstrapSwitch();
+        </script>
 	</body>
 </html>

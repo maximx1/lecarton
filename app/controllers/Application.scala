@@ -15,7 +15,8 @@ object Application extends Controller {
   val newPasteForm = Form(
     tuple(
         "title" -> text,
-        "content" -> text
+        "content" -> text,
+        "isPrivate" -> optional(text)
     )
   )
 
@@ -41,10 +42,10 @@ object Application extends Controller {
   }
   
   def createPaste = Action { implicit request =>
-    val (title, content) = newPasteForm.bindFromRequest.get
+    val (title, content, isPrivate) = newPasteForm.bindFromRequest.get
     val sessionUserId = request.session.get("loggedInUser_id")
     val owner: ObjectId = if (sessionUserId.isEmpty) AnonUserManager.anonId.value else new ObjectId(sessionUserId.get)
-    val result = (new PasteDao).createPaste(owner, title, content, false)
+    val result = (new PasteDao).createPaste(owner, title, content, !isPrivate.isEmpty)
     Ok(views.html.index(result.getAs[String]("pasteId").get)(request.session))
   }
   

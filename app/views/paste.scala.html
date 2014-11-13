@@ -1,5 +1,9 @@
 @(pasteTO: PasteTO)(implicit session: play.api.mvc.Session)
-@header("Paste: " + pasteTO.pasteId)
+@if(pasteTO != null) {
+    @header("Paste: " + pasteTO.pasteId)
+} else {
+    @header("Paste not found")
+}
 	<body>
         <link rel="stylesheet" type="text/css" href="@routes.Assets.at("stylesheets/main.css")">
         <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
@@ -7,8 +11,12 @@
         <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
         @titlebar()(session)
 		<div id="mainContainer">
-			<h1>@pasteTO.title</h1>
-			<p>@pasteTO.content</p>
+            @if(pasteTO != null) {
+                <h1>@pasteTO.title</h1>
+                <p>@pasteTO.content</p>
+            } else {
+                <h1>Paste not found</h1>
+            }
 		</div>
 	</body>
 </html>

@@ -50,9 +50,19 @@ object Application extends Controller {
   }
   
   def displayPaste(pasteId: String) = Action { implicit request =>
+    val sessionUserId = request.session.get("loggedInUser_id")
 	  val pasteQuery = PasteTO(null, pasteId, null, null, null, false)
 	  val result = (new PasteDao).queryPasteByPasteId(pasteQuery)
-	  Ok(views.html.paste(result)(request.session))
+    var verifiedResult: PasteTO = result
+    if(result != null && result.isPrivate) {
+      if(sessionUserId.isEmpty) {
+        verifiedResult = null
+      }
+      else if(sessionUserId.get != result.owner.toString){
+        verifiedResult = null
+      }
+    }
+	  Ok(views.html.paste(verifiedResult)(request.session))
   }
 
   def search(searchScope: String, searchString: String) = Action { implicit request =>

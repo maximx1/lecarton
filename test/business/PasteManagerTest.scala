@@ -21,28 +21,34 @@ class PasteManagerTest extends FlatSpec with Matchers with BeforeAndAfter with M
   }
 
   "Search" should "be able to look up by title" in {
-    val expectedQuery = PasteTO(null, null, null, "title", null, false)
-    Mockito.when(pasteManager.pasteDao.queryPasteByTitle(expectedQuery)).thenReturn(createPasteSearchResult)
-    val results = pasteManager.handlePasteSearch("titles", expectedQuery.title)
+    val privateExpectedQuery = PasteTO(null, null, null, "title", null, false)
+    val publicExpectedQuery = PasteTO(null, null, null, "title", null, true)
+    Mockito.when(pasteManager.pasteDao.queryPasteByTitle(privateExpectedQuery)).thenReturn(createPasteSearchResult)
+    Mockito.when(pasteManager.pasteDao.queryPasteByTitle(publicExpectedQuery)).thenReturn(List.empty)
+    val results = pasteManager.handlePasteSearch("titles", privateExpectedQuery.title, None)
     results should have size createPasteSearchResult.size
   }
 
   it should "return an empty list when there are no results when searching by titles" in {
-    val expectedQuery = PasteTO(null, null, null, "title", null, false)
-    Mockito.when(pasteManager.pasteDao.queryPasteByTitle(expectedQuery)).thenReturn(List.empty)
-    val results = pasteManager.handlePasteSearch("titles", expectedQuery.title)
+    val privateExpectedQuery = PasteTO(null, null, null, "title", null, false)
+    val publicExpectedQuery = PasteTO(null, null, null, "title", null, true)
+    Mockito.when(pasteManager.pasteDao.queryPasteByTitle(privateExpectedQuery)).thenReturn(List.empty)
+    Mockito.when(pasteManager.pasteDao.queryPasteByTitle(publicExpectedQuery)).thenReturn(List.empty)
+    val results = pasteManager.handlePasteSearch("titles", privateExpectedQuery.title, None)
     results should have size 0
   }
 
   it should "return an empty list when scope isn't valid" in {
     pasteManager.pasteDao.mongodbName = "lecartontest" //Just to make sure
-    pasteManager.handlePasteSearch("completely invalid scope", null) should have size 0
+    pasteManager.handlePasteSearch("completely invalid scope", null, None) should have size 0
   }
 
   it should "limit the value for content down to a set length" in {
-    val expectedQuery = PasteTO(null, null, null, "title", null, false)
-    Mockito.when(pasteManager.pasteDao.queryPasteByTitle(expectedQuery)).thenReturn(createPasteSearchResult)
-    val results = pasteManager.handlePasteSearch("titles", expectedQuery.title)
+    val privateExpectedQuery = PasteTO(null, null, null, "title", null, false)
+    val publicExpectedQuery = PasteTO(null, null, null, "title", null, true)
+    Mockito.when(pasteManager.pasteDao.queryPasteByTitle(privateExpectedQuery)).thenReturn(List.empty)
+    Mockito.when(pasteManager.pasteDao.queryPasteByTitle(publicExpectedQuery)).thenReturn(List.empty)
+    val results = pasteManager.handlePasteSearch("titles", privateExpectedQuery.title, None)
     results.filter(x => x.content.length > 35) should have size 0
   }
 
@@ -55,7 +61,7 @@ class PasteManagerTest extends FlatSpec with Matchers with BeforeAndAfter with M
 
     val expectedQuery = PasteTO(null, null, ownersObjectId, null, null, false)
     Mockito.when(pasteManager.pasteDao.queryPastesOfOwner(expectedQuery)).thenReturn(createPasteSearchResult)
-    val results = pasteManager.handlePasteSearch("profiles", testName)
+    val results = pasteManager.handlePasteSearch("profiles", testName, None)
     results should have size createPasteSearchResult.size
   }
 
@@ -63,7 +69,7 @@ class PasteManagerTest extends FlatSpec with Matchers with BeforeAndAfter with M
     val expectedProfileSearchQuery = ProfileTO(null, "mrOwnerMan", null, null)
     Mockito.when(pasteManager.profileDao.queryUserProfileByUsername(expectedProfileSearchQuery)).thenReturn(null)
 
-    val results = pasteManager.handlePasteSearch("profiles", "mrOwnerMan")
+    val results = pasteManager.handlePasteSearch("profiles", "mrOwnerMan", None)
     results should have size 0
   }
 
@@ -76,7 +82,7 @@ class PasteManagerTest extends FlatSpec with Matchers with BeforeAndAfter with M
 
     val expectedQuery = PasteTO(null, null, ownersObjectId, null, null, false)
     Mockito.when(pasteManager.pasteDao.queryPastesOfOwner(expectedQuery)).thenReturn(List.empty)
-    val results = pasteManager.handlePasteSearch("profiles", testName)
+    val results = pasteManager.handlePasteSearch("profiles", testName, None)
     results should have size 0
   }
 

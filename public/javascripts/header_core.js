@@ -21,7 +21,8 @@ var determineSearchRoute = function(searchParam) {
         return "/search/pastes/" + searchParam.substring("paste:".length)
     }
     else if(searchParam.startsWith("@")) {
-        return /search/searchParam
+        var extraSlash = (searchParam.length > 1) ? "/" : ""
+        return "/u" + extraSlash + searchParam.substring("@".length)
     }
 
     return "/p/" + searchParam

@@ -43,15 +43,6 @@ class PasteManagerTest extends FlatSpec with Matchers with BeforeAndAfter with M
     pasteManager.handlePasteSearch("completely invalid scope", null, None) should have size 0
   }
 
-  it should "limit the value for content down to a set length" in {
-    val privateExpectedQuery = PasteTO(null, null, null, "title", null, false)
-    val publicExpectedQuery = PasteTO(null, null, null, "title", null, true)
-    Mockito.when(pasteManager.pasteDao.queryPasteByTitle(privateExpectedQuery)).thenReturn(List.empty)
-    Mockito.when(pasteManager.pasteDao.queryPasteByTitle(publicExpectedQuery)).thenReturn(List.empty)
-    val results = pasteManager.handlePasteSearch("titles", privateExpectedQuery.title, None)
-    results.filter(x => x.content.length > 35) should have size 0
-  }
-
   it should "be able to look up by owner" in {
     val testName = "mrOwnerMan"
     val ownersObjectId = new ObjectId("54485f901adee7b53870bacb")
@@ -59,8 +50,10 @@ class PasteManagerTest extends FlatSpec with Matchers with BeforeAndAfter with M
     val expectedProfileSearchResponse = ProfileTO(ownersObjectId, testName, null, null)
     Mockito.when(pasteManager.profileDao.queryUserProfileByUsername(expectedProfileSearchQuery)).thenReturn(expectedProfileSearchResponse)
 
-    val expectedQuery = PasteTO(null, null, ownersObjectId, null, null, false)
-    Mockito.when(pasteManager.pasteDao.queryPastesOfOwner(expectedQuery)).thenReturn(createPasteSearchResult)
+    val privateExpectedQuery = PasteTO(null, null, ownersObjectId, null, null, false)
+    val publicExpectedQuery = PasteTO(null, null, ownersObjectId, null, null, true)
+    Mockito.when(pasteManager.pasteDao.queryPastesOfOwner(privateExpectedQuery)).thenReturn(List.empty)
+    Mockito.when(pasteManager.pasteDao.queryPastesOfOwner(publicExpectedQuery)).thenReturn(createPasteSearchResult)
     val results = pasteManager.handlePasteSearch("profiles", testName, None)
     results should have size createPasteSearchResult.size
   }
@@ -80,13 +73,18 @@ class PasteManagerTest extends FlatSpec with Matchers with BeforeAndAfter with M
     val expectedProfileSearchResponse = ProfileTO(ownersObjectId, testName, null, null)
     Mockito.when(pasteManager.profileDao.queryUserProfileByUsername(expectedProfileSearchQuery)).thenReturn(expectedProfileSearchResponse)
 
-    val expectedQuery = PasteTO(null, null, ownersObjectId, null, null, false)
-    Mockito.when(pasteManager.pasteDao.queryPastesOfOwner(expectedQuery)).thenReturn(List.empty)
+    val privateExpectedQuery = PasteTO(null, null, ownersObjectId, null, null, false)
+    val publicExpectedQuery = PasteTO(null, null, ownersObjectId, null, null, true)
+    Mockito.when(pasteManager.pasteDao.queryPastesOfOwner(privateExpectedQuery)).thenReturn(List.empty)
+    Mockito.when(pasteManager.pasteDao.queryPastesOfOwner(publicExpectedQuery)).thenReturn(List.empty)
     val results = pasteManager.handlePasteSearch("profiles", testName, None)
     results should have size 0
   }
 
-  
+  "Restrict and filter" should "limit the value for content down to a set length" in {
+    val results = pasteManager.restrictAndFilterSearch(createPasteSearchResult, None)
+    results.filter(x => x.content.length > 35) should have size 0
+  }
 
   lazy val createPasteSearchResult: List[PasteTO] = List(
     PasteTO(new ObjectId(), "aaaa", new ObjectId("54485f901adee7b53870bacb"), "title 1", PasteDao.generateRandomString(40), false),
@@ -97,5 +95,5 @@ class PasteManagerTest extends FlatSpec with Matchers with BeforeAndAfter with M
     PasteTO(new ObjectId(), "ffff", new ObjectId("54485f901adee7b53870bacb"), "title 6", PasteDao.generateRandomString(40), false)
   )
 
-  lazy val createPasteSearchResult: List[PasteTO] = createPasteSearchResult.map(x=> {if(x.title == "title 4") x.isPrivate = true;x})
+  lazy val createPasteSearchResultWithOnePrivate: List[PasteTO] = createPasteSearchResult.map(x=> {if(x.title == "title 4") x.isPrivate = true;x})
 }

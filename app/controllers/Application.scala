@@ -60,6 +60,7 @@ object Application extends Controller {
         verifiedResult = null
       }
     }
+    verifiedResult.content = PasteManager.convertLinksToHTML(verifiedResult.content)
 	  Ok(views.html.paste(verifiedResult)(request.session))
   }
 

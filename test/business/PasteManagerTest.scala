@@ -104,6 +104,12 @@ class PasteManagerTest extends FlatSpec with Matchers with BeforeAndAfter with M
     results should have size 6
   }
 
+  "a url" should "be converted to an <a> tag" in {
+    val original = "hello https://github.com/maximx1 world"
+    val result = PasteManager.convertLinksToHTML(original)
+    result should be ("hello <a href='https://github.com/maximx1'>https://github.com/maximx1</a> world")
+  }
+
   lazy val createPasteSearchResult: List[PasteTO] = List(
     PasteTO(new ObjectId(), "aaaa", new ObjectId("54485f901adee7b53870bacb"), "title 1", PasteDao.generateRandomString(40), false),
     PasteTO(new ObjectId(), "bbbb", new ObjectId("54485f901adee7b53870bacb"), "title 2", PasteDao.generateRandomString(40), false),

@@ -64,3 +64,17 @@ class PasteManager {
     )
   }
 }
+
+/**
+ * Paste manager helper object with some additional utilities.
+ */
+object PasteManager {
+
+  /**
+   * Converts part of a string to an <a />
+   *  "hello https://github.com/maximx1 world" -> "hello <a href='https://github.com/maximx1'>https://github.com/maximx1</a> world"
+   * @param content The string to convert.
+   * @return The converted string.
+   */
+  def convertLinksToHTML(content: String): String = content.replaceAll("(https?://.*)(\\b)", "<a href='$1'>$1</a>$2")
+}

@@ -86,6 +86,24 @@ class PasteManagerTest extends FlatSpec with Matchers with BeforeAndAfter with M
     results.filter(x => x.content.length > 35) should have size 0
   }
 
+  it should "filter out private posts if there is no user" in {
+    val results = pasteManager.restrictAndFilterSearch(createPasteSearchResultWithOnePrivate, None)
+    results.filter(x => x.isPrivate) should have size 0
+    results should have size 5
+  }
+
+  it should "filter out private posts if user is incorrect" in {
+    val results = pasteManager.restrictAndFilterSearch(createPasteSearchResultWithOnePrivate, Some("12345"))
+    results.filter(x => x.isPrivate) should have size 0
+    results should have size 5
+  }
+
+  it should "include private posts if search result matches passed in user" in {
+    val results = pasteManager.restrictAndFilterSearch(createPasteSearchResultWithOnePrivate, Some("54485f901adee7b53870bacb"))
+    results.filter(x => x.isPrivate) should have size 1
+    results should have size 6
+  }
+
   lazy val createPasteSearchResult: List[PasteTO] = List(
     PasteTO(new ObjectId(), "aaaa", new ObjectId("54485f901adee7b53870bacb"), "title 1", PasteDao.generateRandomString(40), false),
     PasteTO(new ObjectId(), "bbbb", new ObjectId("54485f901adee7b53870bacb"), "title 2", PasteDao.generateRandomString(40), false),

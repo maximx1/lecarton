@@ -48,7 +48,6 @@ class PasteManager {
    * @return The restricted results.
    */
   def restrictAndFilterSearch(queryResults: List[PasteTO], sessionUserId: Option[String]): List[PasteTO] = {
-    // TODO: make sure to test this.
     return queryResults.filter({ x =>
       var isNotRestricted = true
       if(sessionUserId.isEmpty) {

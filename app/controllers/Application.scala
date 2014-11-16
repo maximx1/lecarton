@@ -1,6 +1,7 @@
 package controllers
 
 import business.{ProfileManager, PasteManager}
+import org.pegdown.PegDownProcessor
 import play.api.mvc._
 import play.api.data._
 import play.api.data.Forms._
@@ -60,7 +61,7 @@ object Application extends Controller {
         verifiedResult = null
       }
     }
-    verifiedResult.content = PasteManager.convertLinksToHTML(verifiedResult.content)
+    verifiedResult.content = (new PegDownProcessor).markdownToHtml(verifiedResult.content)
 	  Ok(views.html.paste(verifiedResult)(request.session))
   }
 

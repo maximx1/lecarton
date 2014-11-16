@@ -16,7 +16,8 @@ libraryDependencies ++= Seq(
   "org.scalatest" % "scalatest_2.11" % "2.2.1" % "test",
   "org.mindrot" % "jbcrypt" % "0.3m",
   "org.mongodb" %% "casbah" % "2.7.3",
-  "com.github.simplyscala" %% "scalatest-embedmongo" % "0.2.2" % "test"
+  "com.github.simplyscala" %% "scalatest-embedmongo" % "0.2.2" % "test",
+  "org.pegdown" % "pegdown" % "1.2.1"
 )
 
 instrumentSettings

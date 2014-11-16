@@ -105,9 +105,30 @@ class PasteManagerTest extends FlatSpec with Matchers with BeforeAndAfter with M
   }
 
   "a url" should "be converted to an <a> tag" in {
-    val original = "hello https://github.com/maximx1 world"
+    val original = "hello [my github](https://github.com/maximx1) world"
     val result = PasteManager.convertLinksToHTML(original)
-    result should be ("hello <a href='https://github.com/maximx1'>https://github.com/maximx1</a> world")
+    result should be ("hello <a href='https://github.com/maximx1'>my github</a> world")
+  }
+
+  "visibility" should "be able to be updated if owner is logged in" in {
+    val pasteQuery: PasteTO = PasteTO(null, "asdf", null, null, null, false)
+    val expectedResult: PasteTO = PasteTO(new ObjectId, "asdf", new ObjectId("54485f901adee7b53870bacb"), "", "", true)
+    Mockito.when(pasteManager.pasteDao.queryPasteByPasteId(pasteQuery)).thenReturn(expectedResult)
+    val (actual, message) = pasteManager.updatePasteVisibility(Some("54485f901adee7b53870bacb"), "asdf", false)
+    assert(actual)
+  }
+
+  it should "fail to update when the passed in user id is closed" in {
+    val (actual, message) = pasteManager.updatePasteVisibility(Option.empty, "asdf", false)
+    assert(!actual)
+  }
+
+  it should "fail to update when the passed in user id doesn't match the paste's owner" in {
+    val pasteQuery: PasteTO = PasteTO(null, "asdf", null, null, null, false)
+    val expectedResult: PasteTO = PasteTO(new ObjectId, "asdf", new ObjectId("54485f901adee7b53871bacb"), "", "", true)
+    Mockito.when(pasteManager.pasteDao.queryPasteByPasteId(pasteQuery)).thenReturn(expectedResult)
+    val (actual, message) = pasteManager.updatePasteVisibility(Some("54485f901adee7b53870bacb"), "asdf", false)
+    assert(!actual)
   }
 
   lazy val createPasteSearchResult: List[PasteTO] = List(

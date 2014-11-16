@@ -109,8 +109,8 @@ class PasteDaoTest extends FunSpec with Matchers with BeforeAndAfter {
 
     it("should be able to update the paste's visibility") {
       val insertionResult = insertSampleDocument(true)
-      val originalId = insertionResult.getAs[ObjectId]("_id")
-      val query = PasteTO(originalId.get, null, null, null, null, false)
+      val originalId = insertionResult.getAs[String]("pasteId")
+      val query = PasteTO(null, originalId.get, null, null, null, false)
       val originalDoc = pasteDao.queryPasteByPasteId(query)
       originalDoc.isPrivate = true
       pasteDao.updatePaste(originalDoc)

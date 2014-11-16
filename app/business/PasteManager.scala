@@ -54,7 +54,7 @@ class PasteManager {
       val pasteQuery: PasteTO = PasteTO(null, pasteId, null, null, null, false)
       val result = pasteDao.queryPasteByPasteId(pasteQuery)
 
-      if(userId.get != result.owner.toString) {
+      if(userId.get == result.owner.toString) {
         result.isPrivate = isPrivate
         pasteDao.updatePaste(result)
         return (true, null)
@@ -99,5 +99,5 @@ object PasteManager {
    * @param content The string to convert.
    * @return The converted string.
    */
-  def convertLinksToHTML(content: String): String = content.replaceAll("(https?://.*)(\\b)", "<a href='$1'>$1</a>$2")
+  def convertLinksToHTML(content: String): String = content.replaceAll("\\[(.*)\\]\\((.*)\\)", "<a href='$2'>$1</a>")
 }

@@ -49,7 +49,7 @@ class PasteDao {
    */
   def updatePaste(pasteTO: PasteTO) = {
     val query = MongoDBObject("_id" -> pasteTO._id)
-    val update = MongoDBObject("isPrivate" -> pasteTO.isPrivate)
+    val update = MongoDBObject("$set" -> ("isPrivate" -> pasteTO.isPrivate))
     val mongoConnection = MongoConnection()
     val collection = mongoConnection(mongodbName)(pasteCollectionName)
     collection.update(query, update)

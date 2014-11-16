@@ -2,6 +2,7 @@ package business
 
 import dao.{ProfileDao, PasteDao}
 import models.{ProfileTO, PasteTO}
+import org.bson.types.ObjectId
 
 /**
  * Business object for paste management.
@@ -11,6 +12,7 @@ class PasteManager {
 
   var pasteDao: PasteDao = new PasteDao
   var profileDao: ProfileDao = new ProfileDao
+  val ownerNotSignedInError = "Owner not signed in"
 
   /**
    * Handles search situations using the scope and a search parameter.
@@ -39,6 +41,27 @@ class PasteManager {
       else {
           return List.empty
       }
+  }
+
+  /**
+   * Updates a paste's visibility.
+   * @param userId The sessions user id.
+   * @param pasteId The paste id from the request.
+   * @return A tuple of a bool and a message.
+   */
+  def updatePasteVisibility(userId: Option[String], pasteId: String, isPrivate: Boolean): (Boolean, String) = {
+    if(!userId.isEmpty) {
+      val pasteQuery: PasteTO = PasteTO(null, pasteId, null, null, null, false)
+      val result = pasteDao.queryPasteByPasteId(pasteQuery)
+
+      if(userId.get != result.owner.toString) {
+        result.isPrivate = isPrivate
+        pasteDao.updatePaste(result)
+        return (true, null)
+      }
+    }
+
+    return (false, ownerNotSignedInError)
   }
 
   /**

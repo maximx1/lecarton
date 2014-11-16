@@ -44,6 +44,18 @@ class PasteDao {
     }
 
   /**
+   * Updates a paste.
+   * @param pasteTO The basis of the update.
+   */
+  def updatePaste(pasteTO: PasteTO) = {
+    val query = MongoDBObject("_id" -> pasteTO._id)
+    val update = MongoDBObject("isPrivate" -> pasteTO.isPrivate)
+    val mongoConnection = MongoConnection()
+    val collection = mongoConnection(mongodbName)(pasteCollectionName)
+    collection.update(query, update)
+  }
+
+  /**
    * Gets all pastes that match the title string.
    * @param pasteTO The source query data.
    * @return All pastes matching the query.
@@ -68,7 +80,6 @@ class PasteDao {
           case None => null
         }
       )
-
     }
 
   /**

@@ -1,5 +1,6 @@
 package controllers
 
+import business.PasteManager
 import play.api.libs.json._
 import play.api.mvc._
 import play.api._
@@ -20,8 +21,8 @@ object ApplicationApi extends Controller {
     request.body.validate[UpdateVisibilityRequest].map {
       case s: UpdateVisibilityRequest =>
         val (pasteId, newVisibility) = UpdateVisibilityRequest.unapply(s).get
-
-        val response = Json.obj()
+        val (status, message) = (new PasteManager).updatePasteVisibility(sessionUserId, pasteId, newVisibility)
+        val response = Json.obj("status" -> status, "message" -> message)
         Ok(response)
     }.recoverTotal{ e =>
       BadRequest(Json.obj("status" -> "KO", "message" -> JsError.toFlatJson(e)))

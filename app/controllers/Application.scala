@@ -61,7 +61,9 @@ object Application extends Controller {
         verifiedResult = null
       }
     }
-    verifiedResult.content = (new PegDownProcessor).markdownToHtml(verifiedResult.content)
+    else {
+      verifiedResult.content = (new PegDownProcessor).markdownToHtml(verifiedResult.content)
+    }
 	  Ok(views.html.paste(verifiedResult)(request.session))
   }
 

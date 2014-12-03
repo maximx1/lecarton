@@ -1,1 +1,1 @@
-web: target/universal/stage/bin/lecarton -Dhttp.port=${PORT} -Dmongo.url=${DB_URL}
+web: target/universal/stage/bin/lecarton -Dhttp.port=${PORT} -Dmongo.url=${MONGOSOUP_URL}

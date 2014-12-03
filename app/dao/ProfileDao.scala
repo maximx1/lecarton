@@ -16,15 +16,15 @@ class ProfileDao {
 
   def getConnection = {
     val mongoUri = MongoClientURI(Play.current.configuration.getString("mongo.url").get)
-    MongoClient(mongoUri)
+    MongoClient(mongoUri)(mongoUri.database.get)
   }
 
 	/**
 	 * Creates a brand new profile.
 	 */
     def createUserProfile(username: String, password: String, email: String): MongoDBObject = {
-        val mongoConnection = getConnection
-        val collection = mongoConnection(mongodbName)(profileCollectionName)
+        val mongoDb = getConnection
+        val collection = mongoDb(profileCollectionName)
         val newObject = MongoDBObject(
             "username" -> username,
             "password" -> BCrypt.hashpw(password, BCrypt.gensalt(4)),
@@ -38,8 +38,8 @@ class ProfileDao {
    * Creates a brand new profile while forcing the objectId.
    */
     def createUserProfile(username: String, password: String, email: String, forcedId: ObjectId): MongoDBObject = {
-      val mongoConnection = getConnection
-      val collection = mongoConnection(mongodbName)(profileCollectionName)
+      val mongoDb = getConnection
+      val collection = mongoDb(profileCollectionName)
       val newObject = MongoDBObject(
         "_id" -> forcedId,
         "username" -> username,
@@ -72,8 +72,8 @@ class ProfileDao {
    * @return The paste found or null.
    */
     def querySingleProfileBase(query: MongoDBObject): ProfileTO = {
-      val mongoConnection = getConnection
-      val collection = mongoConnection(mongodbName)(profileCollectionName)
+      val mongoDb = getConnection
+      val collection = mongoDb(profileCollectionName)
       ProfileMongoConverters.convertFromMongoObject(
         collection.findOne(query) match {
           case Some(value) => value

@@ -13,15 +13,15 @@ class PasteDao {
 
   def getConnection = {
     val mongoUri = MongoClientURI(Play.current.configuration.getString("mongo.url").get)
-    MongoClient(mongoUri)
+    MongoClient(mongoUri)(mongoUri.database.get)
   }
 
 	/**
 	 * Creates a brand new paste.
 	 */
     def createPaste(owner: ObjectId, title: String, message: String, isPrivate: Boolean): MongoDBObject = {
-        val mongoConnection = getConnection
-        val collection = mongoConnection(mongodbName)(pasteCollectionName)
+        val mongoDb = getConnection
+        val collection = mongoDb(pasteCollectionName)
         val newObject = MongoDBObject(
             "pasteId" -> PasteDao.generateRandomString(8),
             "owner" -> owner,
@@ -79,8 +79,8 @@ class PasteDao {
    * @return The paste found or null.
    */
     def querySinglePasteBase(query: MongoDBObject): PasteTO = {
-      val mongoConnection = getConnection
-      val collection = mongoConnection(mongodbName)(pasteCollectionName)
+      val mongoDb = getConnection
+      val collection = mongoDb(pasteCollectionName)
       PasteMongoConverters.convertFromMongoObject(
         collection.findOne(query) match {
           case Some(value) => value
@@ -95,8 +95,8 @@ class PasteDao {
    * @return The Pastes found or an empty list.
    */
     def queryMultiplePastesBase(query: MongoDBObject): List[PasteTO] = {
-      val mongoConnection = getConnection
-      val collection = mongoConnection(mongodbName)(pasteCollectionName)
+      val mongoDb = getConnection
+      val collection = mongoDb(pasteCollectionName)
       collection.find(query).map(x => PasteMongoConverters.convertFromMongoObject(x)).toList
     }
 }

@@ -4,6 +4,7 @@ import com.mongodb.casbah.Imports._
 import scala.util.Random
 import models.PasteTO
 import converters.PasteMongoConverters
+import play.api.Play
 
 class PasteDao {
   
@@ -14,7 +15,8 @@ class PasteDao {
 	 * Creates a brand new paste.
 	 */
     def createPaste(owner: ObjectId, title: String, message: String, isPrivate: Boolean): MongoDBObject = {
-        val mongoConnection = MongoConnection()
+        val dbConnection = Play.current.configuration.getString("mongo.url")
+        val mongoConnection = MongoConnection(dbConnection.toString)
         val collection = mongoConnection(mongodbName)(pasteCollectionName)
         val newObject = MongoDBObject(
             "pasteId" -> PasteDao.generateRandomString(8),
@@ -50,7 +52,8 @@ class PasteDao {
   def updatePaste(pasteTO: PasteTO) = {
     val query = MongoDBObject("_id" -> pasteTO._id)
     val update = $set ("isPrivate" -> pasteTO.isPrivate)
-    val mongoConnection = MongoConnection()
+    val dbConnection = Play.current.configuration.getString("mongo.url")
+    val mongoConnection = MongoConnection(dbConnection.toString)
     val collection = mongoConnection(mongodbName)(pasteCollectionName)
     collection.update(query, update)
   }
@@ -72,7 +75,8 @@ class PasteDao {
    * @return The paste found or null.
    */
     def querySinglePasteBase(query: MongoDBObject): PasteTO = {
-      val mongoConnection = MongoConnection()
+      val dbConnection = Play.current.configuration.getString("mongo.url")
+      val mongoConnection = MongoConnection(dbConnection.toString)
       val collection = mongoConnection(mongodbName)(pasteCollectionName)
       PasteMongoConverters.convertFromMongoObject(
         collection.findOne(query) match {
@@ -88,7 +92,8 @@ class PasteDao {
    * @return The Pastes found or an empty list.
    */
     def queryMultiplePastesBase(query: MongoDBObject): List[PasteTO] = {
-      val mongoConnection = MongoConnection()
+      val dbConnection = Play.current.configuration.getString("mongo.url")
+      val mongoConnection = MongoConnection(dbConnection.toString)
       val collection = mongoConnection(mongodbName)(pasteCollectionName)
       collection.find(query).map(x => PasteMongoConverters.convertFromMongoObject(x)).toList
     }

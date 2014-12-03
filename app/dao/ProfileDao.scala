@@ -5,6 +5,7 @@ import java.security.MessageDigest
 import models.ProfileTO
 import converters.ProfileMongoConverters
 import org.mindrot.jbcrypt.BCrypt
+import play.api.Play
 
 class ProfileDao {
   
@@ -16,7 +17,8 @@ class ProfileDao {
 	 * Creates a brand new profile.
 	 */
     def createUserProfile(username: String, password: String, email: String): MongoDBObject = {
-        val mongoConnection = MongoConnection()
+        val dbConnection = Play.current.configuration.getString("mongo.url")
+        val mongoConnection = MongoConnection(dbConnection.toString)
         val collection = mongoConnection(mongodbName)(profileCollectionName)
         val newObject = MongoDBObject(
             "username" -> username,
@@ -31,7 +33,8 @@ class ProfileDao {
    * Creates a brand new profile while forcing the objectId.
    */
     def createUserProfile(username: String, password: String, email: String, forcedId: ObjectId): MongoDBObject = {
-      val mongoConnection = MongoConnection()
+      val dbConnection = Play.current.configuration.getString("mongo.url")
+      val mongoConnection = MongoConnection(dbConnection.toString)
       val collection = mongoConnection(mongodbName)(profileCollectionName)
       val newObject = MongoDBObject(
         "_id" -> forcedId,
@@ -65,7 +68,8 @@ class ProfileDao {
    * @return The paste found or null.
    */
     def querySingleProfileBase(query: MongoDBObject): ProfileTO = {
-      val mongoConnection = MongoConnection()
+      val dbConnection = Play.current.configuration.getString("mongo.url")
+      val mongoConnection = MongoConnection(dbConnection.toString)
       val collection = mongoConnection(mongodbName)(profileCollectionName)
       ProfileMongoConverters.convertFromMongoObject(
         collection.findOne(query) match {

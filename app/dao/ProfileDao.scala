@@ -1,16 +1,16 @@
 package dao
 
-import com.mongodb.casbah.Imports._
-import java.security.MessageDigest
 import models.ProfileTO
-import converters.ProfileMongoConverters
 import org.mindrot.jbcrypt.BCrypt
 import anorm._
 import anorm.SqlParser._
+import play.api.db._
+import play.api.Play.current
 
 class ProfileDao {
   
-  var anonUserId = new ObjectId("54485f901adee7b53870bacb")
+  var anonUserId = 1
+
   val profileTOMapper = {
     get[Long]("id") ~
     get[String]("username") ~
@@ -20,70 +20,35 @@ class ProfileDao {
     }
   }
 
-	/**
-	 * Creates a brand new profile.
-	 */
-    def createUserProfile(username: String, password: String, email: String): MongoDBObject = {
-        val mongoConnection = MongoConnection()
-        val collection = mongoConnection(mongodbName)(profileCollectionName)
-        val newObject = MongoDBObject(
-            "username" -> username,
-            "password" -> BCrypt.hashpw(password, BCrypt.gensalt(4)),
-            "email" -> email
-        )
-        collection += newObject
-        return newObject
-    }
-
-  def createUserProfile(username: String, password: String, email: String): ProfileTO = {
-
-  }
-
   /**
-   * Creates a brand new profile while forcing the objectId.
+   * Creates a brand new profile.
    */
-    def createUserProfile(username: String, password: String, email: String, forcedId: ObjectId): MongoDBObject = {
-      val mongoConnection = MongoConnection()
-      val collection = mongoConnection(mongodbName)(profileCollectionName)
-      val newObject = MongoDBObject(
-        "_id" -> forcedId,
-        "username" -> username,
-        "password" -> BCrypt.hashpw(password, BCrypt.gensalt(4)),
-        "email" -> email
-      )
-      collection += newObject
-      return newObject
-    }
+  def createUserProfile(username: String, password: String, email: String): ProfileTO = DB.withConnection(implicit c => {
+      val insertedId = SQL("insert into profiles(id, username, password, email) values(default, {username}, {password}, {email})").on(
+        'username -> username,
+        'password -> BCrypt.hashpw(password, BCrypt.gensalt(4)),
+        'email -> email
+      ).executeInsert()
+      return ProfileTO(insertedId, username, password, email)
+  })
 
 	/**
 	 * Retrieves a profile using the username.
 	 */
-    def queryUserProfileByUsername(profileTO: ProfileTO): ProfileTO = {
-    	val query = MongoDBObject("username" -> profileTO.username)
-    	querySingleProfileBase(query)
-    }
+    def queryUserProfileByUsername(profileTO: ProfileTO): Option[ProfileTO] = DB.withConnection(implicit c => {
+      val results = SQL("select id, username, password, email from profiles where username = {username}").on(
+        'username -> profileTO.username
+      ).as(profileTOMapper *)
+      return if (results.isEmpty) None else Some(results(0))
+    })
 
   /**
-   * Retrieves a profile by _id.
+   * Retrieves a profile using the id.
    */
-  def queryUserProfileById(profileTO: ProfileTO): ProfileTO = {
-    val query = MongoDBObject("_id" -> profileTO._id)
-    querySingleProfileBase(query)
-  }
-
-  /**
-   *  The base query for a single profile.
-   * @param query Query for a single object.
-   * @return The paste found or null.
-   */
-    def querySingleProfileBase(query: MongoDBObject): ProfileTO = {
-      val mongoConnection = MongoConnection()
-      val collection = mongoConnection(mongodbName)(profileCollectionName)
-      ProfileMongoConverters.convertFromMongoObject(
-        collection.findOne(query) match {
-          case Some(value) => value
-          case None => null
-        }
-      )
-    }
+  def queryUserProfileById(profileTO: ProfileTO): Option[ProfileTO] = DB.withConnection(implicit c => {
+    val results = SQL("select id, username, password, email from profiles where id = {id}").on(
+      'id -> profileTO._id
+    ).as(profileTOMapper *)
+    return if (results.isEmpty) None else Some(results(0))
+  })
 }

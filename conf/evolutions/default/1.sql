@@ -20,6 +20,9 @@ create table pastes(
 	foreign key(ownerId) references profiles(id)
 );
 
+# Change the values here before pushing.
+insert into profiles(id, username, password, email) values(default, "anon", "CHANGE_ME", "anon@sample.com")
+
 # --- !Downs
 drop table if exists pastes;
 drop table if exists profiles;

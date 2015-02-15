@@ -3,45 +3,63 @@ package dao
 import com.mongodb.casbah.Imports._
 import scala.util.Random
 import models.PasteTO
-import converters.PasteMongoConverters
+import anorm._
+import anorm.SqlParser._
+import play.api.db._
+import play.api.Play.current
 
 class PasteDao {
-  
-	var mongodbName: String = "lecarton"
-	var pasteCollectionName: String = "pastes"
-	
-	/**
-	 * Creates a brand new paste.
-	 */
-    def createPaste(owner: ObjectId, title: String, message: String, isPrivate: Boolean): MongoDBObject = {
-        val mongoConnection = MongoConnection()
-        val collection = mongoConnection(mongodbName)(pasteCollectionName)
-        val newObject = MongoDBObject(
-            "pasteId" -> PasteDao.generateRandomString(8),
-            "owner" -> owner,
-            "title" -> title,
-            "content" -> message,
-            "isPrivate" -> isPrivate
-        )
-        collection += newObject
-        return newObject
+  val pasteToMapper = {
+    get[Long]("id") ~
+    get[String]("pasteId") ~
+    get[Long]("ownerId") ~
+    get[String]("title") ~
+    get[String]("content") ~
+    get[Boolean]("isPrivate") map {
+      case id~pasteId~ownerId~title~content~isPrivate => PasteTO(id, pasteId, ownerId, title, content, isPrivate)
     }
+  }
+
+  /**
+   * Creates a brand new paste.
+   */
+  def createPaste(owner: Long, title: String, message: String, isPrivate: Boolean): PasteTo = DB.withConnection(implicit c => {
+    val newPasteId = PasteDao.generateRandomString(8)
+    val insertedId = SQL("insert into pastes(id, pasteId, ownerId, title, content, isPrivate) values(default, {pasteId}, {ownerId}, {title}, {content}, {isPrivate}")
+      .on(
+        'pasteId -> newPasteId,
+        'ownerId -> owner,
+        'title -> title,
+        'content -> message,
+        'isPrivate -> isPrivate
+      )
+      .executeInsert()
+    return PasteTO(insertedId, newPasteId, owner, title, message, isPrivate)
+  })
     
-	/**
-	 * Retrieves a paste based on the owner's id and if it's private or not.
-	 */
-    def queryPastesOfOwner(pasteTO: PasteTO): List[PasteTO] = {
-    	val query = MongoDBObject("owner" -> pasteTO.owner, "isPrivate" -> pasteTO.isPrivate)
-    	queryMultiplePastesBase(query)
-    }
-    
-    /**
-     * Gets one paste from the database.
-     */
-    def queryPasteByPasteId(pasteTO: PasteTO): PasteTO = {
-    	val query = MongoDBObject("pasteId" -> pasteTO.pasteId)
-      querySinglePasteBase(query)
-    }
+  /**
+   * Retrieves a paste based on the owner's id and if it's private or not.
+   */
+  def queryPastesOfOwner(pasteTO: PasteTO): List[PasteTO] = DB.withConnection(c => {
+    SQL("select * from pastes where ownerId = {ownerId} and isPrivate = {isPrivate}")
+      .on(
+        'ownerId -> pasteTO.owner,
+        'isPrivate -> pasteTO.isPrivate
+      )
+      .as(pasteToMapper *)
+  })
+
+  /**
+   * Gets one paste from the database.
+   */
+  def queryPasteByPasteId(pasteTO: PasteTO): Option[PasteTO] = DB.withConnection(c => {
+    val pastes = SQL("select * from pastes where pasteId = {pasteId}")
+      .on(
+        'pasteId -> pasteTO.pasteId
+      )
+      .as(pasteToMapper *)
+    return if (pastes.isEmpty) None else Some(pastes(0))
+  })
 
   /**
    * Updates a paste.

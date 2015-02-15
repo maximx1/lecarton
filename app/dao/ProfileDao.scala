@@ -5,13 +5,21 @@ import java.security.MessageDigest
 import models.ProfileTO
 import converters.ProfileMongoConverters
 import org.mindrot.jbcrypt.BCrypt
+import anorm._
+import anorm.SqlParser._
 
 class ProfileDao {
   
-	var mongodbName: String = "lecarton"
-	var profileCollectionName: String = "profiles"
   var anonUserId = new ObjectId("54485f901adee7b53870bacb")
-	
+  val profileTOMapper = {
+    get[Long]("id") ~
+    get[String]("username") ~
+    get[String]("password") ~
+    get[String]("email") map {
+      case id~username~password~email => ProfileTO(id, username, password, email)
+    }
+  }
+
 	/**
 	 * Creates a brand new profile.
 	 */
@@ -26,6 +34,10 @@ class ProfileDao {
         collection += newObject
         return newObject
     }
+
+  def createUserProfile(username: String, password: String, email: String): ProfileTO = {
+
+  }
 
   /**
    * Creates a brand new profile while forcing the objectId.

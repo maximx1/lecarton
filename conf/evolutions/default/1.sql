@@ -1,16 +1,16 @@
 # --- !Ups
 create sequence profiles_id_seq;
 create table profiles(
-	id integer not null default nextval('profiles_id_seq'),
+	id integer unsigned not null default nextval('profiles_id_seq'),
 	username varchar(30) not null unique,
-	password text unsigned not null,
+	password text not null,
 	email text,
 	primary key(id)
 );
 
 create sequence pastes_id_seq;
 create table pastes(
-	id integer not null default nextval('pastes_id_seq'),
+	id integer unsigned not null default nextval('pastes_id_seq'),
 	pasteId varchar(30) not null unique,
 	ownerId int unsigned not null,
 	title text,

@@ -1,13 +1,12 @@
 package controllers
 
 import business.{ProfileManager, PasteManager}
-import org.pegdown.PegDownProcessor
 import play.api.mvc._
 import play.api.data._
 import play.api.data.Forms._
-import dao.{ProfileDao, AnonUserManager, PasteDao}
-import org.bson.types.ObjectId
+import dao.{ProfileDao, PasteDao}
 import models.{ProfileTO, PasteTO}
+import business.PasteManager.contentToMd
 
 object Application extends Controller {
 
@@ -36,33 +35,25 @@ object Application extends Controller {
   )
   
   def index = Action { implicit request =>
-    val anonUserId: ObjectId = AnonUserManager.anonId.value //Hack to initialze anon user on new installs
 	  Ok(views.html.index("Create A New Paste")(request.session))
   }
   
   def createPaste = Action { implicit request =>
     val (title, content, isPublic) = newPasteForm.bindFromRequest.get
     val sessionUserId = request.session.get("loggedInUser_id")
-    val owner: ObjectId = if (sessionUserId.isEmpty) AnonUserManager.anonId.value else new ObjectId(sessionUserId.get)
+    val owner: Long = if (sessionUserId.isEmpty) 1 else sessionUserId.get.toLong
     val result = (new PasteDao).createPaste(owner, title, content, isPublic.isEmpty)
-    Ok(views.html.index(result.getAs[String]("pasteId").get)(request.session))
+    Ok(views.html.index(result.pasteId)(request.session))
   }
   
   def displayPaste(pasteId: String) = Action { implicit request =>
     val sessionUserId = request.session.get("loggedInUser_id")
 	  val pasteQuery = PasteTO(null, pasteId, null, null, null, false)
 	  val result = (new PasteDao).queryPasteByPasteId(pasteQuery)
-    var verifiedResult: PasteTO = result
-    if(result != null && result.isPrivate) {
-      if(sessionUserId.isEmpty) {
-        verifiedResult = null
+    var verifiedResult: PasteTO = result match {
+      case Some(x) => {
+        sessionUserId match { case Some(y) => { if (y.toLong != x.owner && x.isPrivate) null else contentToMd(x) } }
       }
-      else if(sessionUserId.get != result.owner.toString){
-        verifiedResult = null
-      }
-    }
-    else {
-      verifiedResult.content = (new PegDownProcessor).markdownToHtml(verifiedResult.content)
     }
 	  Ok(views.html.paste(verifiedResult)(request.session))
   }
@@ -133,12 +124,12 @@ object Application extends Controller {
     val profileQuery = ProfileTO(null, username, null, null)
     val profileResults = (new ProfileDao).queryUserProfileByUsername(profileQuery)
 
-    if(profileResults != null) {
-      val pasteManager: PasteManager = new PasteManager
-      Ok(views.html.profile(profileResults, pasteManager.handlePasteSearch("profiles", username, sessionUserId))(request.session))
-    }
-    else {
-      Ok(views.html.profile(profileResults, List.empty)(request.session))
+    profileResults match {
+      case Some(x) => {
+        val pasteManager: PasteManager = new PasteManager
+        Ok(views.html.profile(x, pasteManager.handlePasteSearch("profiles", username, sessionUserId))(request.session))
+      }
+      case None => Ok(views.html.profile(null, List.empty)(request.session))
     }
   }
 }

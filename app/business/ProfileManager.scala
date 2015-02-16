@@ -2,7 +2,6 @@ package business
 
 import dao.ProfileDao
 import models.ProfileTO
-import org.bson.types.ObjectId
 import org.mindrot.jbcrypt.BCrypt
 
 /**
@@ -24,7 +23,7 @@ class ProfileManager {
    * @param userId The user's mongo id to search for.
    * @return true if exists.
    */
-  def userExists(userId: ObjectId): Boolean = profileDao.queryUserProfileById(ProfileTO(userId, null, null, null)) != null
+  def userExists(userId: Long): Boolean = profileDao.queryUserProfileById(ProfileTO(userId, null, null, null)) != null
 
   /**
    * Creates a new userafter checking that one doesn't already exist.
@@ -38,8 +37,7 @@ class ProfileManager {
       return null
     }
     else {
-      val newObject = profileDao.createUserProfile(username, password, email)
-      return ProfileTO(newObject.getAs[ObjectId]("_id").get, newObject.getAs[String]("username").get, null, newObject.getAs[String]("email").get)
+      return profileDao.createUserProfile(username, password, email)
     }
   }
 
@@ -51,8 +49,8 @@ class ProfileManager {
    */
   def attemptLogin(username: String, password: String): ProfileTO = {
     val result = profileDao.queryUserProfileByUsername(ProfileTO(null, username, null, null))
-    if(result != null && BCrypt.checkpw(password, result.password)) {
-      return result
+    if(result != null && BCrypt.checkpw(password, result.get.password)) {
+      return result.get
     }
     return null
   }

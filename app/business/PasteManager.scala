@@ -2,7 +2,6 @@ package business
 
 import dao.{ProfileDao, PasteDao}
 import models.{ProfileTO, PasteTO}
-import org.bson.types.ObjectId
 import org.pegdown.PegDownProcessor
 
 /**

@@ -54,7 +54,7 @@ object Application extends Controller {
       case Some(x) => {
         sessionUserId match {
           case Some(y) => if (y.toLong != x.owner && x.isPrivate) null else contentToMd(x)
-          case None => null
+          case None => if(x.isPrivate) null else contentToMd(x)
         }
       }
       case None => null

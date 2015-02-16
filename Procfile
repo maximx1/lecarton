@@ -1,0 +1,1 @@
+web: target/universal/stage/bin/lecarton -Dhttp.port=${PORT} -DapplyEvolutions.default=true -Ddb.default.driver=org.postgresql.Driver -Ddb.default.url=${DATABASE_URL} -Ddb.default.user=${DB_USER} -Ddb.default.password=${DB_PASS}

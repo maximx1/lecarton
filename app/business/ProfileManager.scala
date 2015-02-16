@@ -16,7 +16,7 @@ class ProfileManager {
    * @param username The username to search for.
    * @return true if exists.
    */
-  def userExists(username: String): Boolean = profileDao.queryUserProfileByUsername(ProfileTO(null, username, null, null)) != null
+  def userExists(username: String): Boolean = !profileDao.queryUserProfileByUsername(ProfileTO(-1, username, null, null)).isEmpty
 
   /**
    * Does a quick check to verify that the user does indeed exist.
@@ -48,7 +48,7 @@ class ProfileManager {
    * @return The ProfileTO of the logged in user profile.
    */
   def attemptLogin(username: String, password: String): ProfileTO = {
-    val result = profileDao.queryUserProfileByUsername(ProfileTO(null, username, null, null))
+    val result = profileDao.queryUserProfileByUsername(ProfileTO(-1, username, null, null))
     if(result != null && BCrypt.checkpw(password, result.get.password)) {
       return result.get
     }

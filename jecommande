@@ -1,0 +1,26 @@
+#!/bin/bash
+
+umessage="Usage ./jecommande run <port number>,\n ./jecommande kill, or \n./jecommande build"
+pidfile="app.pid"
+
+if [ "$1" = "run" ]
+then
+   rm -rf lecarton-1.0-SNAPSHOT/
+   ./activator dist
+   unzip target/universal/lecarton-1.0-SNAPSHOT.zip
+   nohup lecarton-1.0-SNAPSHOT/bin/lecarton -Dhttp.port=$2 -J-Xms32M -J-Xmx64M >>nohup.out 2>&1 &
+   echo $! > $pidfile
+elif [ "$1" = "build" ]
+then
+   ./activator clean compile
+elif [ "$1" = "kill" ]
+then
+   if [ -f "$pidfile" ]
+   then
+      echo "stopping server"
+      kill `cat $pidfile`
+      rm $pidfile
+   fi
+else
+   echo "$umessage"
+fi

@@ -3,6 +3,7 @@ package business
 import dao.{ProfileDao, PasteDao}
 import models.{ProfileTO, PasteTO}
 import org.bson.types.ObjectId
+import org.pegdown.PegDownProcessor
 
 /**
  * Business object for paste management.
@@ -33,8 +34,8 @@ class PasteManager {
         if (profileData == null) {
           return List.empty
         }
-        val publicQuery = PasteTO(null, null, profileData._id, null, null, false)
-        val privateQuery = PasteTO(null, null, profileData._id, null, null, true)
+        val publicQuery = PasteTO(null, null, profileData.get._id, null, null, false)
+        val privateQuery = PasteTO(null, null, profileData.get._id, null, null, true)
         val queryResults = pasteDao.queryPastesOfOwner(publicQuery) ::: pasteDao.queryPastesOfOwner(privateQuery)
         return restrictAndFilterSearch(queryResults, sessionUserId)
       }
@@ -50,18 +51,22 @@ class PasteManager {
    * @return A tuple of a bool and a message.
    */
   def updatePasteVisibility(userId: Option[String], pasteId: String, isPrivate: Boolean): (Boolean, String) = {
-    if(!userId.isEmpty) {
-      val pasteQuery: PasteTO = PasteTO(null, pasteId, null, null, null, false)
-      val result = pasteDao.queryPasteByPasteId(pasteQuery)
+    userId match {
+      case Some (x) => {
+        val pasteQuery: PasteTO = PasteTO (null, pasteId, null, null, null, false)
+        val result = pasteDao.queryPasteByPasteId (pasteQuery)
 
-      if(userId.get == result.owner.toString) {
-        result.isPrivate = isPrivate
-        pasteDao.updatePaste(result)
-        return (true, null)
+        if (userId.get == result.get.owner) {
+          result.get.isPrivate = isPrivate
+          pasteDao.updatePaste (result.get)
+          return (true, null)
+        }
+        else {
+          return (false, ownerNotSignedInError)
+        }
       }
+      case None => (false, ownerNotSignedInError)
     }
-
-    return (false, ownerNotSignedInError)
   }
 
   /**
@@ -78,7 +83,7 @@ class PasteManager {
           isNotRestricted = false
         }
       }
-      else if(x.isPrivate && sessionUserId.get != x.owner.toString) {
+      else if(x.isPrivate && sessionUserId.get.toLong != x.owner) {
         isNotRestricted = false
       }
       isNotRestricted
@@ -100,4 +105,11 @@ object PasteManager {
    * @return The converted string.
    */
   def convertLinksToHTML(content: String): String = content.replaceAll("\\[(.*)\\]\\((.*)\\)", "<a href='$2'>$1</a>")
+
+  /**
+   * Converts content to markdown.
+   * @param paste The paste with the original content.
+   * @return The paste with the converted content.
+   */
+  def contentToMd(paste: PasteTO): PasteTO = paste.copy(content = (new PegDownProcessor).markdownToHtml(paste.content))
 }

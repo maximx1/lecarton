@@ -1,6 +1,5 @@
 package dao
 
-import com.mongodb.casbah.Imports._
 import scala.util.Random
 import models.PasteTO
 import anorm._
@@ -23,7 +22,7 @@ class PasteDao {
   /**
    * Creates a brand new paste.
    */
-  def createPaste(owner: Long, title: String, message: String, isPrivate: Boolean): PasteTo = DB.withConnection(implicit c => {
+  def createPaste(owner: Long, title: String, message: String, isPrivate: Boolean): PasteTO = DB.withConnection(implicit c => {
     val newPasteId = PasteDao.generateRandomString(8)
     val insertedId = SQL("insert into pastes(id, pasteId, ownerId, title, content, isPrivate) values(default, {pasteId}, {ownerId}, {title}, {content}, {isPrivate}")
       .on(
@@ -65,51 +64,18 @@ class PasteDao {
    * Updates a paste.
    * @param pasteTO The basis of the update.
    */
-  def updatePaste(pasteTO: PasteTO) = {
-    val query = MongoDBObject("_id" -> pasteTO._id)
-    val update = $set ("isPrivate" -> pasteTO.isPrivate)
-    val mongoConnection = MongoConnection()
-    val collection = mongoConnection(mongodbName)(pasteCollectionName)
-    collection.update(query, update)
-  }
+  def updatePaste(pasteTO: PasteTO) = DB.withConnection(c => {
+    SQL("update pastes set isPrivate = {isPrivate} where id = {id}").on('isPrivate -> pasteTO.isPrivate, 'id -> pasteTO._id).execute()
+  })
 
   /**
    * Gets all pastes that match the title string.
    * @param pasteTO The source query data.
    * @return All pastes matching the query.
    */
-    def queryPasteByTitle(pasteTO:PasteTO): List[PasteTO] = {
-      val searchString = ".*" + pasteTO.title + ".*"
-      val query = MongoDBObject("title" -> searchString.r, "isPrivate" -> pasteTO.isPrivate)
-      queryMultiplePastesBase(query)
-    }
-
-  /**
-   *  The base query for a single paste.
-   * @param query Query for a single object.
-   * @return The paste found or null.
-   */
-    def querySinglePasteBase(query: MongoDBObject): PasteTO = {
-      val mongoConnection = MongoConnection()
-      val collection = mongoConnection(mongodbName)(pasteCollectionName)
-      PasteMongoConverters.convertFromMongoObject(
-        collection.findOne(query) match {
-          case Some(value) => value
-          case None => null
-        }
-      )
-    }
-
-  /**
-   * The base query for multiple pastes
-   * @param query Query for multiple objects
-   * @return The Pastes found or an empty list.
-   */
-    def queryMultiplePastesBase(query: MongoDBObject): List[PasteTO] = {
-      val mongoConnection = MongoConnection()
-      val collection = mongoConnection(mongodbName)(pasteCollectionName)
-      collection.find(query).map(x => PasteMongoConverters.convertFromMongoObject(x)).toList
-    }
+  def queryPasteByTitle(pasteTO: PasteTO): List[PasteTO] = DB.withConnection(c => {
+    SQL("select * from pastes where title like %{searchString}%").on('searchString -> pasteTO.title).as(pasteToMapper *)
+  })
 }
 
 object PasteDao {

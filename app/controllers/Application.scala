@@ -48,12 +48,16 @@ object Application extends Controller {
   
   def displayPaste(pasteId: String) = Action { implicit request =>
     val sessionUserId = request.session.get("loggedInUser_id")
-	  val pasteQuery = PasteTO(null, pasteId, null, null, null, false)
+	  val pasteQuery = PasteTO(-1, pasteId, -1, null, null, false)
 	  val result = (new PasteDao).queryPasteByPasteId(pasteQuery)
     var verifiedResult: PasteTO = result match {
       case Some(x) => {
-        sessionUserId match { case Some(y) => { if (y.toLong != x.owner && x.isPrivate) null else contentToMd(x) } }
+        sessionUserId match {
+          case Some(y) => if (y.toLong != x.owner && x.isPrivate) null else contentToMd(x)
+          case None => null
+        }
       }
+      case None => null
     }
 	  Ok(views.html.paste(verifiedResult)(request.session))
   }
@@ -121,7 +125,7 @@ object Application extends Controller {
   def loadProfile(username: String) = Action { implicit request =>
     val sessionUserId = request.session.get("loggedInUser_id")
 
-    val profileQuery = ProfileTO(null, username, null, null)
+    val profileQuery = ProfileTO(-1, username, null, null)
     val profileResults = (new ProfileDao).queryUserProfileByUsername(profileQuery)
 
     profileResults match {

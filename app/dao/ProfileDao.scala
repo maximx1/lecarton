@@ -24,12 +24,12 @@ class ProfileDao {
    * Creates a brand new profile.
    */
   def createUserProfile(username: String, password: String, email: String): ProfileTO = DB.withConnection(implicit c => {
-      val insertedId = SQL("insert into profiles(id, username, password, email) values(default, {username}, {password}, {email})").on(
+      val insertedId: Option[Long] = SQL("insert into profiles(id, username, password, email) values(default, {username}, {password}, {email})").on(
         'username -> username,
         'password -> BCrypt.hashpw(password, BCrypt.gensalt(4)),
         'email -> email
       ).executeInsert()
-      return ProfileTO(insertedId, username, password, email)
+      return ProfileTO(insertedId.get, username, password, email)
   })
 
 	/**

@@ -23,19 +23,19 @@ class PasteManager {
    */
   def handlePasteSearch(searchScope: String, searchString: String, sessionUserId: Option[String]): List[PasteTO] = {
       if(searchScope == "titles") {
-          val publicQuery = PasteTO(null, null, null, searchString, null, false)
-          val privateQuery = PasteTO(null, null, null, searchString, null, true)
+          val publicQuery = PasteTO(-1, null, -1, searchString, null, false)
+          val privateQuery = PasteTO(-1, null, -1, searchString, null, true)
           val queryResults = pasteDao.queryPasteByTitle(publicQuery) ::: pasteDao.queryPasteByTitle(privateQuery)
           return restrictAndFilterSearch(queryResults, sessionUserId)
       }
       else if(searchScope == "profiles") {
-        val profileQuery = ProfileTO(null, searchString, null, null)
+        val profileQuery = ProfileTO(-1, searchString, null, null)
         val profileData = profileDao.queryUserProfileByUsername(profileQuery)
         if (profileData == null) {
           return List.empty
         }
-        val publicQuery = PasteTO(null, null, profileData.get._id, null, null, false)
-        val privateQuery = PasteTO(null, null, profileData.get._id, null, null, true)
+        val publicQuery = PasteTO(-1, null, profileData.get._id, null, null, false)
+        val privateQuery = PasteTO(-1, null, profileData.get._id, null, null, true)
         val queryResults = pasteDao.queryPastesOfOwner(publicQuery) ::: pasteDao.queryPastesOfOwner(privateQuery)
         return restrictAndFilterSearch(queryResults, sessionUserId)
       }
@@ -53,7 +53,7 @@ class PasteManager {
   def updatePasteVisibility(userId: Option[String], pasteId: String, isPrivate: Boolean): (Boolean, String) = {
     userId match {
       case Some (x) => {
-        val pasteQuery: PasteTO = PasteTO (null, pasteId, null, null, null, false)
+        val pasteQuery: PasteTO = PasteTO (-1, pasteId, -1, null, null, false)
         val result = pasteDao.queryPasteByPasteId (pasteQuery)
 
         if (userId.get == result.get.owner) {

@@ -49,9 +49,9 @@ class ProfileManager {
    */
   def attemptLogin(username: String, password: String): ProfileTO = {
     val result = profileDao.queryUserProfileByUsername(ProfileTO(-1, username, null, null))
-    if(result != null && BCrypt.checkpw(password, result.get.password)) {
-      return result.get
+    result match {
+      case Some(x) => return if (BCrypt.checkpw(password, result.get.password)) result.get else null
+      case None => null
     }
-    return null
   }
 }

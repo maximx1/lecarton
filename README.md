@@ -16,4 +16,7 @@ This amounts to a standalone gist.
 Just run ``activator dist``
 
 ### To run
-You can run with ``activator run``
+You can run with ``./activator run`` or just run the ``./jecommande run 8088``
+
+### Data location
+Default data location for running with jecommand is in the root of the project .data/

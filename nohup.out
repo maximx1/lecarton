@@ -1,0 +1,66 @@
+Play server process ID is 2209
+SLF4J: Class path contains multiple SLF4J bindings.
+SLF4J: Found binding in [jar:file:/Users/justin/Development/scala/lecarton/lecarton-1.0-SNAPSHOT/lib/ch.qos.logback.logback-classic-1.1.1.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: Found binding in [jar:file:/Users/justin/Development/scala/lecarton/lecarton-1.0-SNAPSHOT/lib/org.slf4j.slf4j-simple-1.7.7.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: See http://www.slf4j.org/codes.html#multiple_bindings for an explanation.
+SLF4J: Actual binding is of type [ch.qos.logback.classic.util.ContextSelectorStaticBinder]
+[[37minfo[0m] play - database [default] connected at jdbc:h2:.data/lecarton
+[[33mwarn[0m] play - Your production database [default] needs evolutions! 
+
+# --- Rev:1,Ups - bc48ff6
+create sequence profiles_id_seq;
+create table profiles(
+id integer not null default nextval('profiles_id_seq'),
+username varchar(30) not null unique,
+password text not null,
+email text,
+primary key(id)
+);
+
+create sequence pastes_id_seq;
+create table pastes(
+id integer not null default nextval('pastes_id_seq'),
+pasteId varchar(30) not null unique,
+ownerId int not null,
+title text,
+content text,
+isPrivate bool not null default false,
+primary key(id),
+foreign key(ownerId) references profiles(id)
+);
+
+insert into profiles(id, username, password, email) values(default, 'anon', 'CHANGE_ME', 'anon@sample.com')
+
+[[33mwarn[0m] play - Run with -DapplyEvolutions.default=true if you want to run them automatically (be careful)
+Oops, cannot start the server.
+@6l8b13l25: Database 'default' needs evolution!
+	at play.api.db.evolutions.EvolutionsPlugin$$anonfun$onStart$1$$anonfun$apply$1.apply$mcV$sp(Evolutions.scala:508)
+	at play.api.db.evolutions.EvolutionsPlugin.withLock(Evolutions.scala:531)
+	at play.api.db.evolutions.EvolutionsPlugin$$anonfun$onStart$1.apply(Evolutions.scala:485)
+	at play.api.db.evolutions.EvolutionsPlugin$$anonfun$onStart$1.apply(Evolutions.scala:483)
+	at scala.collection.immutable.List.foreach(List.scala:383)
+	at play.api.db.evolutions.EvolutionsPlugin.onStart(Evolutions.scala:483)
+	at play.api.Play$$anonfun$start$1$$anonfun$apply$mcV$sp$1.apply(Play.scala:91)
+	at play.api.Play$$anonfun$start$1$$anonfun$apply$mcV$sp$1.apply(Play.scala:91)
+	at scala.collection.immutable.List.foreach(List.scala:383)
+	at play.api.Play$$anonfun$start$1.apply$mcV$sp(Play.scala:91)
+	at play.api.Play$$anonfun$start$1.apply(Play.scala:91)
+	at play.api.Play$$anonfun$start$1.apply(Play.scala:91)
+	at play.utils.Threads$.withContextClassLoader(Threads.scala:21)
+	at play.api.Play$.start(Play.scala:90)
+	at play.core.StaticApplication.<init>(ApplicationProvider.scala:55)
+	at play.core.server.NettyServer$.createServer(NettyServer.scala:244)
+	at play.core.server.NettyServer$$anonfun$main$3.apply(NettyServer.scala:280)
+	at play.core.server.NettyServer$$anonfun$main$3.apply(NettyServer.scala:275)
+	at scala.Option.map(Option.scala:145)
+	at play.core.server.NettyServer$.main(NettyServer.scala:275)
+	at play.core.server.NettyServer.main(NettyServer.scala)
+Play server process ID is 2192
+SLF4J: Class path contains multiple SLF4J bindings.
+SLF4J: Found binding in [jar:file:/Users/justin/Development/scala/lecarton/lecarton-1.0-SNAPSHOT/lib/ch.qos.logback.logback-classic-1.1.1.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: Found binding in [jar:file:/Users/justin/Development/scala/lecarton/lecarton-1.0-SNAPSHOT/lib/org.slf4j.slf4j-simple-1.7.7.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: See http://www.slf4j.org/codes.html#multiple_bindings for an explanation.
+SLF4J: Actual binding is of type [ch.qos.logback.classic.util.ContextSelectorStaticBinder]
+[[37minfo[0m] play - database [default] connected at jdbc:h2:../.data/lecarton
+[[37minfo[0m] play - Application started (Prod)
+[[37minfo[0m] play - Listening for HTTP on /0:0:0:0:0:0:0:0:8088

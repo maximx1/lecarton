@@ -42,7 +42,8 @@ object Application extends Controller {
     val (title, content, isPublic) = newPasteForm.bindFromRequest.get
     val sessionUserId = request.session.get("loggedInUser_id")
     val owner: Long = if (sessionUserId.isEmpty) 1 else sessionUserId.get.toLong
-    val result = (new PasteDao).createPaste(owner, title, content, isPublic.isEmpty)
+    val storePrivate = if (owner == 1) false else isPublic.isEmpty
+    val result = (new PasteDao).createPaste(owner, title, content, storePrivate)
     Ok(views.html.index(result.pasteId)(request.session))
   }
   

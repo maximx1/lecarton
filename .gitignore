@@ -16,3 +16,9 @@ dist
 *.swp
 .DS_Store
 lecarton-1.0-SNAPSHOT/
+.data/
+nohup.out
+app.pid
+projectFilesBackup/
+.cache
+

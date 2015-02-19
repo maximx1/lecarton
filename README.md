@@ -1,6 +1,8 @@
 Le Carton
 =========
 
+[![Build Status](https://travis-ci.org/maximx1/lecarton.svg?branch=master)](https://travis-ci.org/maximx1/lecarton)
+
 ### Description
 This is another pastebin clone that I wish to make with added functionality like:
 

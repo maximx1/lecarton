@@ -55,7 +55,7 @@ class PasteManager {
         val pasteQuery: PasteTO = PasteTO (-1, pasteId, -1, null, null, false)
         val result = pasteDao.queryPasteByPasteId (pasteQuery)
 
-        if (userId.get == result.get.owner) {
+        if (x.toLong == result.get.owner) {
           result.get.isPrivate = isPrivate
           pasteDao.updatePaste (result.get)
           return (true, null)

@@ -16,7 +16,9 @@ libraryDependencies ++= Seq(
   "org.postgresql" % "postgresql" % "9.4-1200-jdbc41",
   "org.scalatest" % "scalatest_2.11" % "2.2.1" % "test",
   "org.mindrot" % "jbcrypt" % "0.3m",
-  "org.pegdown" % "pegdown" % "1.2.1"
+  "org.pegdown" % "pegdown" % "1.2.1",
+  "com.github.tototoshi" %% "play-json4s-jackson" % "0.3.1",
+  "com.github.tototoshi" %% "play-json4s-test-jackson" % "0.3.1" % "test"
 )
 
 instrumentSettings

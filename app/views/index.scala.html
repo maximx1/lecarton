@@ -13,7 +13,10 @@
         @titlebar()(session)
         <div class="container">
         	<div class="row">
-        		<div class="col-md-12 col-sm-12 col-xs-12"><h1>@message</h1></div>
+        		<div class="col-md-12 col-sm-12 col-xs-12"><h1>Create A New Paste</h1></div>
+                @if(!message.isEmpty) {
+        		    <div class="col-md-12 col-sm-12 col-xs-12"><h3>Created: <a href="/p/@message">@message</a></h3></div>
+                }
 				<div class="col-md-12 col-sm-12 col-xs-12" id="newPaste">
 					<form method="post" autocomplete="on">
 						<input id="titlebox" type="text" name="title"><br>

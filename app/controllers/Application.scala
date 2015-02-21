@@ -35,7 +35,7 @@ object Application extends Controller {
   )
   
   def index = Action { implicit request =>
-	  Ok(views.html.index("Create A New Paste")(request.session))
+	  Ok(views.html.index("")(request.session))
   }
   
   def createPaste = Action { implicit request =>

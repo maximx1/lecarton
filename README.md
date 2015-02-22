@@ -18,7 +18,7 @@ This amounts to a standalone gist.
 Obviously, clone the git repo 
 
 #### Heroku
-1. Set up a heroku instance with the following:
+1. Set up a heroku instance with the following either through heroku website or using heroku create:
     * At least 1 dyno
     * Heroku postgres (Or any other postgres host)
 2. You need to set up some env variables in the system:
@@ -26,8 +26,8 @@ Obviously, clone the git repo
     * DATABASE_URL => url for the database
     * DB_USER => The username with granted permissions of CREATE UPDATE DELETE DROP SELECT INSERT (all the basics)
     * DB_PASS => password
-3. Set up the code with heroku (Git<INSERT LINKS HERE>)
-4. Push
+3. Set up the code with heroku (using [git](http://stackoverflow.com/a/5129733/3183419) or [heroku's signin](https://devcenter.heroku.com/articles/git#creating-a-heroku-remote))
+4. Push via `git push heroku master`
 
 #### Standalone (linux only)
 This will run the app in the background

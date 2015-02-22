@@ -55,12 +55,16 @@ object Application extends Controller {
       case Some(x) => {
         sessionUserId match {
           case Some(y) => if (y.toLong != x.owner && x.isPrivate) null else contentToMd(x)
-          case None => if(x.isPrivate) null else contentToMd(x)
+          case None => if(x.isPrivate) pasteQuery else contentToMd(x)
         }
       }
       case None => null
     }
-	  Ok(views.html.paste(verifiedResult)(request.session))
+    if (verifiedResult != null && verifiedResult._id == -1) {
+      Redirect(routes.Application.login) withNewSession
+    } else {
+      Ok(views.html.paste(verifiedResult)(request.session))
+    }
   }
 
   def search(searchScope: String, searchString: String) = Action { implicit request =>

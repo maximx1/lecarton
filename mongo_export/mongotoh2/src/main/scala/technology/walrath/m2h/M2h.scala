@@ -14,13 +14,13 @@ object M2h {
     oldProfiles.foreach(x => {
       val newProfile = ProfileTO(-1, x.username, x.password, x.email)
       if(x.username != "anon") {
-        val newId = h2.createUserProfile(x.username, x.password, x.email).get
+        val newId = h2.createUserProfile(x.username, x.password, x.email)(H2Push.con).get
         val oldPastes = dao.queryPastesOfOwner(x)
-        oldPastes.foreach(y => h2.createPaste(newId, y.pasteId, y.title, y.content, y.isPrivate))
+        oldPastes.foreach(y => h2.createPaste(newId, y.pasteId, y.title, y.content, y.isPrivate)(H2Push.con))
       }
       else {
         val oldPastes = dao.queryPastesOfOwner(x)
-        oldPastes.foreach(y => h2.createPaste(1, y.pasteId, y.title, y.content, y.isPrivate))
+        oldPastes.foreach(y => h2.createPaste(1, y.pasteId, y.title, y.content, y.isPrivate)(H2Push.con))
       }
     })
   }

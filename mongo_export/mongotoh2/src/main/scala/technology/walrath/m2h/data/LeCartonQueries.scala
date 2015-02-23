@@ -12,8 +12,8 @@ import technology.walrath.m2h.converters._
 class LeCartonQueries {
   var mongodbName: String = "lecarton"
 
-  def queryPastesOfOwner(pasteTO: PasteTO): List[PasteTO] = {
-    val query = MongoDBObject("owner" -> pasteTO.owner, "isPrivate" -> pasteTO.isPrivate)
+  def queryPastesOfOwner(profileTO: ProfileTO): List[PasteTO] = {
+    val query = MongoDBObject("owner" -> profileTO._id)
     val mongoConnection = MongoConnection()
     val collection = mongoConnection(mongodbName)("pastes")
     collection.find(query).map(x => PasteMongoConverters.convertFromMongoObject(x)).toList

@@ -130,7 +130,7 @@ object Application extends Controller {
   def loadProfile(username: String) = Action { implicit request =>
     val sessionUserId = request.session.get("loggedInUser_id")
 
-    val profileQuery = ProfileTO(-1, username, null, null)
+    val profileQuery = ProfileTO(-1, username, null, null, false)
     val profileResults = (new ProfileDao).queryUserProfileByUsername(profileQuery)
 
     profileResults match {
@@ -140,5 +140,10 @@ object Application extends Controller {
       }
       case None => Ok(views.html.profile(null, List.empty)(request.session))
     }
+  }
+  
+  def loadAdmin = Action { implicit request =>
+
+    Ok(views.html.admin((new PasteDao).pasteCount, (new ProfileDao).profileCount)(request.session))
   }
 }

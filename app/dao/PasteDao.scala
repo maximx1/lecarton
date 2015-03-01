@@ -77,6 +77,12 @@ class PasteDao {
     SQL("select * from pastes where title like {searchString} and isPrivate = {isPrivate}")
       .on('searchString -> ("%" + pasteTO.title + "%"), 'isPrivate -> pasteTO.isPrivate).as(pasteToMapper *)
   })
+
+  /**
+   * Gets a count of all the pastes in the db.
+   * @return The count.
+   */
+  def pasteCount: Long = DB.withConnection(implicit c => SQL("select count(*) as c from pastes").apply().head[Long]("c"))
 }
 
 object PasteDao {

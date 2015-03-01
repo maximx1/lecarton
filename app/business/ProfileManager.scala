@@ -16,14 +16,14 @@ class ProfileManager {
    * @param username The username to search for.
    * @return true if exists.
    */
-  def userExists(username: String): Boolean = !profileDao.queryUserProfileByUsername(ProfileTO(-1, username, null, null)).isEmpty
+  def userExists(username: String): Boolean = !profileDao.queryUserProfileByUsername(ProfileTO(-1, username, null, null, false)).isEmpty
 
   /**
    * Does a quick check to verify that the user does indeed exist.
    * @param userId The user's mongo id to search for.
    * @return true if exists.
    */
-  def userExists(userId: Long): Boolean = profileDao.queryUserProfileById(ProfileTO(userId, null, null, null)) != null
+  def userExists(userId: Long): Boolean = profileDao.queryUserProfileById(ProfileTO(userId, null, null, null, false)) != null
 
   /**
    * Creates a new userafter checking that one doesn't already exist.
@@ -48,7 +48,7 @@ class ProfileManager {
    * @return The ProfileTO of the logged in user profile.
    */
   def attemptLogin(username: String, password: String): ProfileTO = {
-    val result = profileDao.queryUserProfileByUsername(ProfileTO(-1, username, null, null))
+    val result = profileDao.queryUserProfileByUsername(ProfileTO(-1, username, null, null, false))
     result match {
       case Some(x) => return if (BCrypt.checkpw(password, result.get.password)) result.get else null
       case None => null

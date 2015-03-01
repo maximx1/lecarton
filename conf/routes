@@ -15,6 +15,7 @@ GET     /createProfile              controllers.Application.createProfile
 POST    /createProfile              controllers.Application.attemptCreateProfile
 GET     /u                          controllers.Application.loadPersonalProfile
 GET     /u/:username                controllers.Application.loadProfile(username: String)
+GET     /admin                      controllers.Application.loadAdmin
 
 # API
 POST    /api/updateVisibility       controllers.ApplicationApi.updatePasteVisibility

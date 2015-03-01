@@ -47,8 +47,8 @@ class PasteManagerTest extends FlatSpec with Matchers with BeforeAndAfter with M
 
   it should "be able to look up by owner" in {
     val testName = "mrOwnerMan"
-    val expectedProfileSearchQuery = ProfileTO(-1, testName, null, null)
-    val expectedProfileSearchResponse = ProfileTO(1, testName, null, null)
+    val expectedProfileSearchQuery = ProfileTO(-1, testName, null, null, false)
+    val expectedProfileSearchResponse = ProfileTO(1, testName, null, null, false)
     Mockito.when(pasteManager.profileDao.queryUserProfileByUsername(expectedProfileSearchQuery)).thenReturn(Some(expectedProfileSearchResponse))
 
     val privateExpectedQuery = PasteTO(-1, null, 1, null, null, false)
@@ -60,7 +60,7 @@ class PasteManagerTest extends FlatSpec with Matchers with BeforeAndAfter with M
   }
 
   it should "return an empty list when owning profile isn't found" in {
-    val expectedProfileSearchQuery = ProfileTO(1, "mrOwnerMan", null, null)
+    val expectedProfileSearchQuery = ProfileTO(1, "mrOwnerMan", null, null, false)
     Mockito.when(pasteManager.profileDao.queryUserProfileByUsername(expectedProfileSearchQuery)).thenReturn(null)
 
     val results = pasteManager.handlePasteSearch("profiles", "mrOwnerMan", None)
@@ -70,8 +70,8 @@ class PasteManagerTest extends FlatSpec with Matchers with BeforeAndAfter with M
   it should "return an empty list when there are no results when searching by profile owner" in {
     val testName = "mrOwnerMan"
     val ownersObjectId = 1
-    val expectedProfileSearchQuery = ProfileTO(-1, testName, null, null)
-    val expectedProfileSearchResponse = ProfileTO(1, testName, null, null)
+    val expectedProfileSearchQuery = ProfileTO(-1, testName, null, null, false)
+    val expectedProfileSearchResponse = ProfileTO(1, testName, null, null, false)
     Mockito.when(pasteManager.profileDao.queryUserProfileByUsername(expectedProfileSearchQuery)).thenReturn(Some(expectedProfileSearchResponse))
 
     val privateExpectedQuery = PasteTO(-1, null, ownersObjectId, null, null, false)

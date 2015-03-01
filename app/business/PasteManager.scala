@@ -28,7 +28,7 @@ class PasteManager {
           return restrictAndFilterSearch(queryResults, sessionUserId)
       }
       else if(searchScope == "profiles") {
-        val profileQuery = ProfileTO(-1, searchString, null, null)
+        val profileQuery = ProfileTO(-1, searchString, null, null, false)
         val profileData = profileDao.queryUserProfileByUsername(profileQuery)
         if (profileData == null) {
           return List.empty

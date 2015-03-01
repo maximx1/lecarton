@@ -132,6 +132,21 @@ class PasteManagerTest extends FlatSpec with Matchers with BeforeAndAfter with M
     assert(!actual)
   }
 
+  "Markdown content conversion" should "convert a markdown link to markdown" in {
+    val actual = PasteManager.contentToMd(markdownConvertedExample)
+    actual.content should be ("<p><a href=\"https://google.com\">google</a></p>")
+  }
+  
+  it should "not change any of the other values in the TO" in {
+    val actual = PasteManager.contentToMd(markdownConvertedExample)
+    actual._id should be (1)
+    actual.pasteId should be ("asdf")
+    actual.title should be ("title 1")
+    actual.isPrivate should be (false)
+  }
+  
+  val markdownConvertedExample = PasteTO(1, "asdf", 1, "title 1", "[google](https://google.com)", false)
+
   lazy val createPasteSearchResult: List[PasteTO] = List(
     PasteTO(1, "aaaa", 1, "title 1", PasteDao.generateRandomString(40), false),
     PasteTO(2, "bbbb", 1, "title 2", PasteDao.generateRandomString(40), false),

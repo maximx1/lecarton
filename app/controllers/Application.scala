@@ -54,8 +54,8 @@ object Application extends Controller {
     var verifiedResult: PasteTO = result match {
       case Some(x) => {
         sessionUserId match {
-          case Some(y) => if (y.toLong != x.owner && x.isPrivate) null else contentToMd(x)
-          case None => if(x.isPrivate) pasteQuery else contentToMd(x)
+          case Some(y) => if (y.toLong != x.owner && x.isPrivate) null else contentToMd(Some(x)).get
+          case None => if(x.isPrivate) pasteQuery else contentToMd(Some(x)).get
         }
       }
       case None => null

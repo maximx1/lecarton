@@ -99,7 +99,7 @@ object PasteManager {
 
   /**
    * Converts part of a string to an <a />
-   *  "hello https://github.com/maximx1 world" -> "hello <a href='https://github.com/maximx1'>https://github.com/maximx1</a> world"
+   * "hello https://github.com/maximx1 world" -> "hello <a href='https://github.com/maximx1'>https://github.com/maximx1</a> world"
    * @param content The string to convert.
    * @return The converted string.
    */
@@ -110,5 +110,10 @@ object PasteManager {
    * @param paste The paste with the original content.
    * @return The paste with the converted content.
    */
-  def contentToMd(paste: PasteTO): PasteTO = paste.copy(content = (new PegDownProcessor).markdownToHtml(paste.content))
+  def contentToMd(paste: Option[PasteTO]): Option[PasteTO] = {
+      paste match {
+        case Some(x) => Some(x.copy(content = (new PegDownProcessor).markdownToHtml(x.content)))
+        case None => None
+      }
+  }
 }

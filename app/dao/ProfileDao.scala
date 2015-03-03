@@ -30,7 +30,7 @@ class ProfileDao {
         'password -> BCrypt.hashpw(password, BCrypt.gensalt(4)),
         'email -> email
       ).executeInsert()
-      return ProfileTO(insertedId.get, username, password, email, false)
+      return ProfileTO(insertedId.get, username, null, email, false)
   })
 
 	/**

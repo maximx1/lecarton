@@ -37,7 +37,7 @@ class ProfileManager {
       return null
     }
     else {
-      return profileDao.createUserProfile(username, password, email)
+      return profileDao.createUserProfile(username, password, email).copy(password = null)
     }
   }
 

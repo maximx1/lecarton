@@ -7,6 +7,7 @@ import play.api.data.Forms._
 import dao.{ProfileDao, PasteDao}
 import models.{ProfileTO, PasteTO}
 import business.PasteManager.contentToMd
+import scala.concurrent.Future
 
 object Application extends Controller {
 
@@ -67,10 +68,13 @@ object Application extends Controller {
     }
   }
 
-  def search(searchScope: String, searchString: String) = Action { implicit request =>
+  def search(searchScope: String, searchString: String) = Action.async { implicit request =>
     val sessionUserId = request.session.get("loggedInUser_id")
-    val result = (new PasteManager).handlePasteSearch(searchScope, searchString, sessionUserId)
-    Ok(views.html.searchResults(result, searchScope, searchString)(request.session))
+    val result: Future[List[PasteTO]] = Future {(new PasteManager).handlePasteSearch(searchScope, searchString, sessionUserId)}
+
+    result.map {x =>
+      Ok(views.html.searchResults(x, searchScope, searchString)(request.session))
+    }
   }
 
   def login = Action { implicit request =>

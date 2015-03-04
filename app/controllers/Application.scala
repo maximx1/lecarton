@@ -8,6 +8,7 @@ import dao.{ProfileDao, PasteDao}
 import models.{ProfileTO, PasteTO}
 import business.PasteManager.contentToMd
 import scala.concurrent.Future
+import play.api.libs.concurrent.Execution.Implicits._
 
 object Application extends Controller {
 
@@ -52,7 +53,7 @@ object Application extends Controller {
     val sessionUserId = request.session.get("loggedInUser_id")
 	  val pasteQuery = PasteTO(-1, pasteId, -1, null, null, false)
 	  val result = (new PasteDao).queryPasteByPasteId(pasteQuery)
-    var verifiedResult: PasteTO = result match {
+    val verifiedResult: PasteTO = result match {
       case Some(x) => {
         sessionUserId match {
           case Some(y) => if (y.toLong != x.owner && x.isPrivate) null else contentToMd(Some(x)).get

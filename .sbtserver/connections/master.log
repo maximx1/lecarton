@@ -1,0 +1,13 @@
+New log file opened at Thu Mar 05 19:30:45 CST 2015 by 23093@Justins-MBP.netgear.com
+Taking next connection to: 50003
+New client attempting to connect on port: 50004-50003
+  Address = /192.168.1.47:50003
+This client on port 50004 has uuid 271d6806-23a4-4464-9705-e5dc5f10a071 configName play-fork-run humanReadableName Play Fork Run protocolVersion 1 featureTags Vector()
+Connected Clients: play-fork-run-271d6806-23a4-4464-9705-e5dc5f10a071
+Taking next connection to: 50003
+Checking to see if clients are empty...
+We have 1 non-daemon clients, continuing serving connections.
+Taking next connection to: 50003
+Checking to see if clients are empty...
+We have 1 non-daemon clients, continuing serving connections.
+Taking next connection to: 50003

@@ -18,7 +18,7 @@
         		    <div class="col-md-12 col-sm-12 col-xs-12"><h3>Created: <a href="/p/@message">@message</a></h3></div>
                 }
 				<div class="col-md-12 col-sm-12 col-xs-12" id="newPaste">
-					<form method="post" autocomplete="on">
+					<form class="disableOnSubmit" method="post" autocomplete="on">
 						<input id="titlebox" type="text" name="title"><br>
 						<textarea id="contentbox" name="content" rows="4" cols="50"></textarea>
 						<input id="submitbutton" type="submit" value="Paste">
@@ -29,8 +29,6 @@
 				</div>
 			</div>
 		</div>
-        <script>
-            $("[name='isPublic']").bootstrapSwitch();
-        </script>
+        <script src='@routes.Assets.at("javascripts/create_page.js")'></script>
 	</body>
 </html>

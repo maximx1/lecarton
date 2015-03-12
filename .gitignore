@@ -21,4 +21,7 @@ nohup.out
 app.pid
 projectFilesBackup/
 .cache
-
+.sbtserver/
+/project/*-shim.sbt
+*.class
+/bin/

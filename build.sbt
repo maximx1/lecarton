@@ -32,3 +32,5 @@ ScoverageKeys.excludedPackages in ScoverageCompile := "<empty>;controllers.*;vie
 parallelExecution in Test := false
 
 testOptions in Test += Tests.Argument("-oF")
+
+fork in run := true

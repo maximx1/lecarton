@@ -15,18 +15,17 @@
 		<div id="mainContainer">
             @if(pasteTO != null) {
                 <h1>@pasteTO.title</h1>
+                <input id="idNumber" type="hidden" value="@pasteTO.pasteId" />
                 <hr />
                 <p>@Html(pasteTO.content)</p>
                 <br />
                 <div class="make-switch">
-                    <input type="checkbox" checked data-on-text="public" data-off-text="private" name="isPublic" value="true">
+                    <input id="publicPrivateSwitch" type="checkbox" data-on-text="public" data-off-text="private" name="isPublic" @if(!pasteTO.isPrivate) { checked } />
                 </div>
             } else {
                 <h1>Paste not found</h1>
             }
 		</div>
-        <script>
-            $("[name='isPublic']").bootstrapSwitch();
-        </script>
+        <script src='@routes.Assets.at("javascripts/display_paste.js")'></script>
 	</body>
 </html>

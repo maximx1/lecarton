@@ -12,7 +12,7 @@ This is another pastebin clone that I wish to make with added functionality like
 * Plugin support
 * rss feeds
 
-This amounts to a standalone gist.
+Ththis amounts to a standalone gist.
 
 ### Deploy
 Obviously, clone the git repo 
@@ -44,3 +44,12 @@ You can check jecommande usage by running `./jecommande`.
 
 ### Data location
 Default data location for running with jecommand is in the root of the project .data/
+
+### For Developers
+##### debug locally
+1. Run `./activator -jvm-debug` to start the debugger and `run` once the debugger is ready
+2. In intellij
+    1. Open run->Edit Configurations...
+    2. Then hit the + (select remote)
+    3. Once there enter 9999 in the port (everything else should be good)
+    4. Select the new run config in the dropdown next to the debug icon and click debug

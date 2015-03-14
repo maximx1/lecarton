@@ -128,8 +128,14 @@ object Application extends Controller {
   }
   
   def loadAdmin = Action { implicit request =>
-
-    Ok(views.html.admin((new PasteDao).pasteCount, (new ProfileDao).profileCount)(request.session))
+    val isUserAdmin = request.session.get("loggedInUserIsAdmin")
+    if(parseIsAdminFromFormIfUserIsAdmin(isUserAdmin)) {
+      Ok(views.html.admin((new PasteDao).pasteCount, (new ProfileDao).profileCount)(request.session))
+    }
+    else {
+      Ok(views.html.error404()(request.session))
+      
+    }
   }
   
   def parseIsAdminFromFormIfUserIsAdmin(isUserAdmin: Option[String]): Boolean = isUserAdmin match {

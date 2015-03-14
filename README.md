@@ -31,6 +31,7 @@ Obviously, clone the git repo
 
 #### Standalone (linux only)
 This will run the app in the background
+
 1. Run
     * `./jecommande run <portnumber>`
 2. Stop

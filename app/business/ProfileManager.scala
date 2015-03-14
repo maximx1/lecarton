@@ -32,12 +32,12 @@ class ProfileManager {
    * @param email The email to create with.
    * @return New ProfileTO if successful or null ortherwise.
    */
-  def createUser(username: String, password: String, email: String): ProfileTO = {
+  def createUser(username: String, password: String, email: String, isAdmin: Boolean): ProfileTO = {
     if(userExists(username)) {
       return null
     }
     else {
-      return profileDao.createUserProfile(username, password, email).copy(password = null)
+      return profileDao.createUserProfile(username, password, email, isAdmin).copy(password = null)
     }
   }
 

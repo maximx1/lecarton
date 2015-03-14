@@ -48,20 +48,25 @@ class ProfileManagerTest extends FlatSpec with Matchers with BeforeAndAfter with
   }
 
   "Create user profile" should "be able to create a new user profile" in {
-    val actual = successfulCreateUserBase
+    val actual = successfulCreateUserBase()
     actual.username should be ("tom")
     actual.email should be ("sample@email.com")
+  }
+
+  it should "be able to create a new user profile as an admin" in {
+    val actual = successfulCreateUserBase(true)
+    actual.isAdmin should be (true)
   }
 
   it should "block creation if user already exists" in {
     val query = ProfileTO(-1, "tom", null, null, false)
     val expectedResponse = ProfileTO(1, "tom", "1234", "sample@email.com", false)
     Mockito.when(profileManager.profileDao.queryUserProfileByUsername(query)).thenReturn(Some(expectedResponse))
-    profileManager.createUser("tom", "1234", "sample@email.com") should be (null)
+    profileManager.createUser("tom", "1234", "sample@email.com", false) should be (null)
   }
 
   it should "strip the password from the returning object" in {
-    val actual = successfulCreateUserBase
+    val actual = successfulCreateUserBase()
     actual.password should be (null)
   }
 
@@ -89,13 +94,13 @@ class ProfileManagerTest extends FlatSpec with Matchers with BeforeAndAfter with
     actual should be (null)
   }
 
-  lazy val successfulCreateUserBase = {
+  def successfulCreateUserBase(isAdmin: Boolean=false) = {
     val query = ProfileTO(-1, "tom", null, null, false)
     val expectedQueryUsernameResponse = None
     Mockito.when(profileManager.profileDao.queryUserProfileByUsername(query)).thenReturn(expectedQueryUsernameResponse)
-    Mockito.when(profileManager.profileDao.createUserProfile("tom", "1234", "sample@email.com")).thenReturn(successfullyReturnedDocument)
-    profileManager.createUser("tom", "1234", "sample@email.com")
+    Mockito.when(profileManager.profileDao.createUserProfile("tom", "1234", "sample@email.com", isAdmin)).thenReturn(successfullyReturnedDocument(isAdmin))
+    profileManager.createUser("tom", "1234", "sample@email.com", isAdmin)
   }
 
-  lazy val successfullyReturnedDocument = ProfileTO(1, "tom", "1234", "sample@email.com", false)
+  def successfullyReturnedDocument(isAdmin: Boolean=false) = ProfileTO(1, "tom", "1234", "sample@email.com", isAdmin)
 }

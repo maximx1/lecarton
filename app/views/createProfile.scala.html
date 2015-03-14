@@ -1,4 +1,4 @@
-@(errorMessage: String)(implicit session: play.api.mvc.Session)
+@(errorMessage: String, isAdmin: Boolean)(implicit session: play.api.mvc.Session)
 
 @import helper._
 
@@ -49,6 +49,16 @@
                                 <input id="emailField" class="width100p" type="text" name="email">
                             </td>
                         </tr>
+                        @if(isAdmin) {
+                            <tr>
+                                <td class="loginFormLabel">
+                                    Is this user an admin?
+                                </td>
+                                <td class="loginFormFields">
+                                    <input id="isAdmin" type="checkbox" name="isAdmin" />
+                                </td>
+                            </tr>
+                        }
                         <tr>
                             <td colspan="2"><input id="submitbutton" type="submit" value="Create Account"></td>
                         </tr>

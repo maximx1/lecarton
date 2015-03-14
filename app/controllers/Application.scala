@@ -2,40 +2,14 @@ package controllers
 
 import business.{ProfileManager, PasteManager}
 import play.api.mvc._
-import play.api.data._
-import play.api.data.Forms._
 import dao.{ProfileDao, PasteDao}
 import models.{ProfileTO, PasteTO}
 import business.PasteManager.contentToMd
 import scala.concurrent.Future
 import play.api.libs.concurrent.Execution.Implicits._
+import controllers.forms._
 
 object Application extends Controller {
-
-  val newPasteForm = Form(
-    tuple(
-        "title" -> text,
-        "content" -> text,
-        "isPublic" -> optional(text)
-    )
-  )
-
-  val loginForm = Form(
-    tuple(
-      "username" -> text,
-      "password" -> text
-    )
-  )
-
-  val createProfileForm = Form(
-    tuple(
-      "username" -> text,
-      "password1" -> text,
-      "password2" -> text,
-      "email" -> text
-    )
-  )
-  
   def index = Action { implicit request =>
 	  Ok(views.html.index("")(request.session))
   }
@@ -89,7 +63,11 @@ object Application extends Controller {
       Ok(views.html.login("Username/password not found")(request.session))
     }
     else {
-      Redirect(routes.Application.index) withSession("loggedInUsername" -> result.username, "loggedInUser_id" -> result._id.toString)
+      Redirect(routes.Application.index) withSession(
+        "loggedInUsername" -> result.username,
+        "loggedInUser_id" -> result._id.toString,
+        "loggedInUserIsAdmin" -> result.isAdmin.toString
+      )
     }
   }
 
@@ -98,26 +76,28 @@ object Application extends Controller {
   }
 
   def createProfile = Action { implicit request =>
-    Ok(views.html.createProfile(null)(request.session))
+    Ok(views.html.createProfile(null, parseIsAdminFromFormIfUserIsAdmin(request.session.get("loggedInUserIsAdmin")))(request.session))
   }
 
   def attemptCreateProfile = Action { implicit request =>
-    val (username, password1, password2, email) = createProfileForm.bindFromRequest.get
+    val (username, password1, password2, email, isAdmin) = createProfileForm.bindFromRequest.get
+    val isUserAdmin = request.session.get("loggedInUserIsAdmin")
     val profileManager: ProfileManager = new ProfileManager()
 
     if(profileManager.userExists(username)) {
-      Ok(views.html.createProfile("Username is already taken")(request.session))
+      Ok(views.html.createProfile("Username is already taken", parseIsAdminFromFormIfUserIsAdmin(isUserAdmin))(request.session))
     }
     else if(password1 != password2) {
-      Ok(views.html.createProfile("Both passwords were not equal")(request.session))
+      Ok(views.html.createProfile("Both passwords were not equal", parseIsAdminFromFormIfUserIsAdmin(isUserAdmin))(request.session))
     }
     else {
-      val result = profileManager.createUser(username, password1, email)
+      
+      val result = profileManager.createUser(username, password1, email, !isAdmin.isEmpty)
       if(result == null) {
-        Ok(views.html.createProfile("There was an unspecified error, you should try to log in again")(request.session))
+        Ok(views.html.createProfile("There was an unspecified error, you should try to log in again", parseIsAdminFromFormIfUserIsAdmin(isUserAdmin))(request.session))
       }
       else {
-        Redirect(routes.Application.index) withSession("loggedInUsername" -> result.username, "loggedInUser_id" -> result._id.toString)
+        Redirect(routes.Application.login)
       }
     }
   }
@@ -150,5 +130,10 @@ object Application extends Controller {
   def loadAdmin = Action { implicit request =>
 
     Ok(views.html.admin((new PasteDao).pasteCount, (new ProfileDao).profileCount)(request.session))
+  }
+  
+  def parseIsAdminFromFormIfUserIsAdmin(isUserAdmin: Option[String]): Boolean = isUserAdmin match {
+    case Some(x) => x == "true"
+    case None => false
   }
 }

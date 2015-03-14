@@ -12,7 +12,7 @@ This is another pastebin clone that I wish to make with added functionality like
 * Plugin support
 * rss feeds
 
-Ththis amounts to a standalone gist.
+This amounts to a standalone gist.
 
 ### Deploy
 Obviously, clone the git repo 

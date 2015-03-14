@@ -24,13 +24,14 @@ class ProfileDao {
   /**
    * Creates a brand new profile.
    */
-  def createUserProfile(username: String, password: String, email: String): ProfileTO = DB.withConnection(implicit c => {
-      val insertedId: Option[Long] = SQL("insert into profiles(id, username, password, email, isAdmin) values(default, {username}, {password}, {email}, default)").on(
+  def createUserProfile(username: String, password: String, email: String, isAdmin: Boolean): ProfileTO = DB.withConnection(implicit c => {
+      val insertedId: Option[Long] = SQL("insert into profiles(id, username, password, email, isAdmin) values(default, {username}, {password}, {email}, {isAdmin})").on(
         'username -> username,
         'password -> BCrypt.hashpw(password, BCrypt.gensalt(4)),
-        'email -> email
+        'email -> email,
+        'isAdmin -> isAdmin
       ).executeInsert()
-      return ProfileTO(insertedId.get, username, null, email, false)
+      return ProfileTO(insertedId.get, username, null, email, isAdmin)
   })
 
 	/**

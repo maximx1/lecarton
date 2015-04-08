@@ -11,6 +11,7 @@ import com.github.tototoshi.play2.json4s.jackson._
 
 case class UpdateVisibilityRequest(pasteId: String, isPublic: Boolean)
 case class UpdateVisibilityResponse(status: Boolean, message: String)
+case class BaseResponse(status: Option[String], message: Option[String])
 
 object ApplicationApi extends Controller with Json4s {
 
@@ -22,4 +23,7 @@ object ApplicationApi extends Controller with Json4s {
     val (status, message) = (new PasteManager).updatePasteVisibility(sessionUserId, requestJson.pasteId, !requestJson.isPublic)
     Ok(Extraction.decompose(UpdateVisibilityResponse(status, message)))
   }
-}
+
+  def deleteScheduled(key: String) = Action(json) { implicit request =>
+    Ok(Extraction.decompose(BaseResponse(Some("ok"), None)))
+  }

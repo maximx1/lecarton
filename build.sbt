@@ -18,7 +18,9 @@ libraryDependencies ++= Seq(
   "org.mindrot" % "jbcrypt" % "0.3m",
   "org.pegdown" % "pegdown" % "1.2.1",
   "com.github.tototoshi" %% "play-json4s-jackson" % "0.3.1",
-  "com.github.tototoshi" %% "play-json4s-test-jackson" % "0.3.1" % "test"
+  "com.github.tototoshi" %% "play-json4s-test-jackson" % "0.3.1" % "test",
+  "com.typesafe.slick" %% "slick" % "2.1.0",
+  "com.typesafe.play" %% "play-slick" % "0.8.1"
 )
 
 instrumentSettings

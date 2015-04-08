@@ -16,7 +16,7 @@ case class BaseResponse(status: Option[String], message: Option[String])
 object ApplicationApi extends Controller with Json4s {
 
   implicit val format = DefaultFormats
-  
+
   def updatePasteVisibility = Action(json) { implicit request =>
     val sessionUserId = request.session.get("loggedInUser_id")
     val requestJson = request.body.extract[UpdateVisibilityRequest]
@@ -27,3 +27,4 @@ object ApplicationApi extends Controller with Json4s {
   def deleteScheduled(key: String) = Action(json) { implicit request =>
     Ok(Extraction.decompose(BaseResponse(Some("ok"), None)))
   }
+}

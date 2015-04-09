@@ -1,7 +1,8 @@
 package business
 
+import scala.util.{Success, Failure}
 import dao.{ProfileDao, PasteDao}
-import models.{ProfileTO, PasteTO}
+import models.{Paste, Pastes, ProfileTO, PasteTO}
 import org.pegdown.PegDownProcessor
 
 /**
@@ -13,6 +14,9 @@ class PasteManager {
   var pasteDao: PasteDao = new PasteDao
   var profileDao: ProfileDao = new ProfileDao
   val ownerNotSignedInError = "Owner not signed in"
+  val dbError = "Database Error"
+  val notFound = "Entry not found"
+  val failUnspecified = "Unspecified error doing action"
 
   /**
    * Handles search situations using the scope and a search parameter.
@@ -47,25 +51,23 @@ class PasteManager {
    * Updates a paste's visibility.
    * @param userId The sessions user id.
    * @param pasteId The paste id from the request.
+   * @param isPrivate The new visibility.
    * @return A tuple of a bool and a message.
    */
   def updatePasteVisibility(userId: Option[String], pasteId: String, isPrivate: Boolean): (Boolean, String) = {
-    userId match {
-      case Some (x) => {
-        val pasteQuery: PasteTO = PasteTO (-1, pasteId, -1, null, null, false)
-        val result = pasteDao.queryPasteByPasteId (pasteQuery)
-
-        if (x.toLong == result.get.owner) {
-          result.get.isPrivate = isPrivate
-          pasteDao.updatePaste (result.get)
-          return (true, null)
+    userId.map { x: String =>
+      val result = Pastes.byPasteId(pasteId)
+      result match {
+        case Success(Some(y)) if y.ownerId == x.toLong => {
+          Pastes.updateVisibility(y.copy(isPrivate = isPrivate)) match {
+            case Success(z) => return (true, null)
+            case Failure(e) => { println(e); (false, dbError) }
+            case _ => (false, notFound)
+          }
         }
-        else {
-          return (false, ownerNotSignedInError)
-        }
+        case _ => (false, ownerNotSignedInError)
       }
-      case None => (false, ownerNotSignedInError)
-    }
+    }.getOrElse((false, failUnspecified))
   }
 
   /**

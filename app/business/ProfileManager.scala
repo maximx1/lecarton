@@ -1,8 +1,10 @@
 package business
 
 import dao.ProfileDao
-import models.{Profiles, ProfileTO}
+import models.{Profile, Profiles, ProfileTO}
 import org.mindrot.jbcrypt.BCrypt
+
+import scala.util.{Failure, Success}
 
 /**
  * Business logic for handling profiles.
@@ -16,14 +18,20 @@ class ProfileManager {
    * @param username The username to search for.
    * @return true if exists.
    */
-  def userExists(username: String): Boolean = !profileDao.queryUserProfileByUsername(ProfileTO(-1, username, null, null, false)).isEmpty
+  def userExists(username: String): Option[Boolean] = Profiles.byUsername(username) match {
+    case Success(x) => Some(!x.isEmpty)
+    case Failure(x) => { println(x); None }
+  }
 
   /**
    * Does a quick check to verify that the user does indeed exist.
-   * @param userId The user's mongo id to search for.
+   * @param userId The user's id to search for.
    * @return true if exists.
    */
-  def userExists(userId: Long): Boolean = Profiles.byId(userId).map(!_.isEmpty).getOrElse(false)
+  def userExists(userId: Long): Option[Boolean] = Profiles.byId(userId) match {
+    case Success(x) => Some(!x.isEmpty)
+    case Failure(x) => { println(x); None }
+  }
 
   /**
    * Creates a new userafter checking that one doesn't already exist.
@@ -32,13 +40,16 @@ class ProfileManager {
    * @param email The email to create with.
    * @return New ProfileTO if successful or null ortherwise.
    */
-  def createUser(username: String, password: String, email: String, isAdmin: Boolean): ProfileTO = {
-    if(userExists(username)) {
-      return null
+  def createUser(username: String, password: String, email: String, isAdmin: Boolean): ProfileTO = userExists(username) match {
+    case Some(x) if x => null
+    case Some(x) if !x => {
+      val newProfile = Profile(None, username, password, email, isAdmin)
+      Profiles += newProfile match {
+        case Success(x) => ProfileTO(-1, newProfile.username, null, newProfile.email, newProfile.isAdmin)
+        case Failure(x) => null
+      }
     }
-    else {
-      return profileDao.createUserProfile(username, password, email, isAdmin).copy(password = null)
-    }
+    case _ => null
   }
 
   /**
@@ -48,10 +59,10 @@ class ProfileManager {
    * @return The ProfileTO of the logged in user profile.
    */
   def attemptLogin(username: String, password: String): ProfileTO = {
-    val result = profileDao.queryUserProfileByUsername(ProfileTO(-1, username, null, null, false))
-    result match {
-      case Some(x) => return if (BCrypt.checkpw(password, result.get.password)) result.get else null
-      case None => null
+    Profiles.byUsername(username) match {
+      case Success(Some(x)) => return if (BCrypt.checkpw(password, x.password)) ProfileTO(x.id.get, x.username, null, x.email, x.isAdmin) else null
+      case Failure(x) => { println(x); null }
+      case _ => null
     }
   }
 }

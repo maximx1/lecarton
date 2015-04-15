@@ -1,7 +1,7 @@
 package business
 
 import dao.ProfileDao
-import models.ProfileTO
+import models.{Profiles, ProfileTO}
 import org.mindrot.jbcrypt.BCrypt
 
 /**
@@ -23,7 +23,7 @@ class ProfileManager {
    * @param userId The user's mongo id to search for.
    * @return true if exists.
    */
-  def userExists(userId: Long): Boolean = profileDao.queryUserProfileById(ProfileTO(userId, null, null, null, false)) != null
+  def userExists(userId: Long): Boolean = Profiles.byId(userId).map(!_.isEmpty).getOrElse(false)
 
   /**
    * Creates a new userafter checking that one doesn't already exist.

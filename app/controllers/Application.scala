@@ -84,21 +84,26 @@ object Application extends Controller {
     val isUserAdmin = request.session.get("loggedInUserIsAdmin")
     val profileManager: ProfileManager = new ProfileManager()
 
-    if(profileManager.userExists(username)) {
-      Ok(views.html.createProfile("Username is already taken", parseIsAdminFromFormIfUserIsAdmin(isUserAdmin))(request.session))
-    }
-    else if(password1 != password2) {
-      Ok(views.html.createProfile("Both passwords were not equal", parseIsAdminFromFormIfUserIsAdmin(isUserAdmin))(request.session))
-    }
-    else {
-      
-      val result = profileManager.createUser(username, password1, email, !isAdmin.isEmpty)
-      if(result == null) {
-        Ok(views.html.createProfile("There was an unspecified error, you should try to log in again", parseIsAdminFromFormIfUserIsAdmin(isUserAdmin))(request.session))
+    profileManager.userExists(username) match {
+      case Some(x) => {
+        if (x) {
+          Ok(views.html.createProfile("Username is already taken", parseIsAdminFromFormIfUserIsAdmin(isUserAdmin))(request.session))
+        }
+        else if (password1 != password2) {
+          Ok(views.html.createProfile("Both passwords were not equal", parseIsAdminFromFormIfUserIsAdmin(isUserAdmin))(request.session))
+        }
+        else {
+
+          val result = profileManager.createUser(username, password1, email, !isAdmin.isEmpty)
+          if (result == null) {
+            Ok(views.html.createProfile("There was an unspecified error, you should try to log in again", parseIsAdminFromFormIfUserIsAdmin(isUserAdmin))(request.session))
+          }
+          else {
+            Redirect(routes.Application.login)
+          }
+        }
       }
-      else {
-        Redirect(routes.Application.login)
-      }
+      case _ => Ok(views.html.createProfile("There was an unspecified error, you should try to log in again", parseIsAdminFromFormIfUserIsAdmin(isUserAdmin))(request.session))
     }
   }
 

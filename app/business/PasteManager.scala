@@ -2,7 +2,7 @@ package business
 
 import scala.util.{Success, Failure}
 import dao.{ProfileDao, PasteDao}
-import models.{Paste, Pastes, ProfileTO, PasteTO}
+import models._
 import org.pegdown.PegDownProcessor
 
 /**
@@ -26,21 +26,22 @@ class PasteManager {
    */
   def handlePasteSearch(searchScope: String, searchString: String, sessionUserId: Option[String]): List[PasteTO] = {
       if(searchScope == "titles") {
-          val publicQuery = PasteTO(-1, null, -1, searchString, null, false)
-          val privateQuery = PasteTO(-1, null, -1, searchString, null, true)
-          val queryResults = pasteDao.queryPasteByTitle(publicQuery) ::: pasteDao.queryPasteByTitle(privateQuery)
-          return restrictAndFilterSearch(queryResults, sessionUserId)
+        return Pastes.byTitle(searchString) match {
+          case Success(x) => restrictAndFilterSearch(x.map(y => PasteTO(y.id.get, y.pasteId, y.ownerId, y.title, y.content, y.isPrivate)), sessionUserId)
+          case Failure(x) => { println(x); return List.empty }
+        }
       }
       else if(searchScope == "profiles") {
-        val profileQuery = ProfileTO(-1, searchString, null, null, false)
-        val profileData = profileDao.queryUserProfileByUsername(profileQuery)
-        if (profileData == null) {
-          return List.empty
+        return Profiles.byUsername(searchString) match {
+          case Success(Some(x)) => {
+            Pastes.byOwner(x.id.get) match {
+              case Success(x) => restrictAndFilterSearch(x.map(y => PasteTO(y.id.get, y.pasteId, y.ownerId, y.title, y.content, y.isPrivate)), sessionUserId)
+              case Failure(x) => { println(x); return List.empty }
+            }
+          }
+          case Failure(x) => { println(x); return List.empty }
+          case _ => List.empty
         }
-        val publicQuery = PasteTO(-1, null, profileData.get._id, null, null, false)
-        val privateQuery = PasteTO(-1, null, profileData.get._id, null, null, true)
-        val queryResults = pasteDao.queryPastesOfOwner(publicQuery) ::: pasteDao.queryPastesOfOwner(privateQuery)
-        return restrictAndFilterSearch(queryResults, sessionUserId)
       }
       else {
           return List.empty

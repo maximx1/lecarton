@@ -58,7 +58,7 @@ object Pastes extends BaseSlickTrait[Paste] {
 
   def byTitle(title: String) = Try {
     DB withSession { implicit session =>
-      model.filter(_.title like "%" + title + "%").list.headOption
+      model.filter(_.title like "%" + title + "%").list
     }
   }
 

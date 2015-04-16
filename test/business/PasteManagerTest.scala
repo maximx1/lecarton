@@ -41,15 +41,12 @@ class PasteManagerTest extends BaseTestSpec {
 //    val results = pasteManager.handlePasteSearch("profiles", testName, None)
 //    results should have size createPasteSearchResult.size
 //  }
-//
-//  it should "return an empty list when owning profile isn't found" in {
-//    val expectedProfileSearchQuery = ProfileTO(1, "mrOwnerMan", null, null, false)
-//    Mockito.when(pasteManager.profileDao.queryUserProfileByUsername(expectedProfileSearchQuery)).thenReturn(null)
-//
-//    val results = pasteManager.handlePasteSearch("profiles", "mrOwnerMan", None)
-//    results should have size 0
-//  }
-//
+
+  it should "return an empty list when owning profile isn't found" in {
+    (pasteManager.profiles.byUsername _) expects("mrOwnerMan") returning (null)
+    pasteManager.handlePasteSearch("profiles", "mrOwnerMan", None) should have size 0
+  }
+
 //  it should "return an empty list when there are no results when searching by profile owner" in {
 //    val testName = "mrOwnerMan"
 //    val ownersObjectId = 1
@@ -64,44 +61,38 @@ class PasteManagerTest extends BaseTestSpec {
 //    val results = pasteManager.handlePasteSearch("profiles", testName, None)
 //    results should have size 0
 //  }
-//
-//  "Restrict and filter" should "limit the value for content down to a set length" in {
-//    val results = pasteManager.restrictAndFilterSearch(createPasteSearchResult, None)
-//    results.filter(x => x.content.length > 35) should have size 0
-//  }
-//
-//  it should "filter out private posts if there is no user" in {
-//    val results = pasteManager.restrictAndFilterSearch(createPasteSearchResultWithOnePrivate, None)
-//    results.filter(x => x.isPrivate) should have size 0
-//    results should have size 5
-//  }
-//
-//  it should "filter out private posts if user is incorrect" in {
-//    val results = pasteManager.restrictAndFilterSearch(createPasteSearchResultWithOnePrivate, Some("12345"))
-//    results.filter(x => x.isPrivate) should have size 0
-//    results should have size 5
-//  }
-//
-//  it should "include private posts if search result matches passed in user" in {
-//    val results = pasteManager.restrictAndFilterSearch(createPasteSearchResultWithOnePrivate, Some("1"))
-//    results.filter(x => x.isPrivate) should have size 1
-//    results should have size 6
-//  }
-//
-//  "a url" should "be converted to an <a> tag" in {
-//    val original = "hello [my github](https://github.com/maximx1) world"
-//    val result = PasteManager.convertLinksToHTML(original)
-//    result should be ("hello <a href='https://github.com/maximx1'>my github</a> world")
-//  }
-//
-//  "visibility" should "be able to be updated if owner is logged in" in {
-//    val pasteQuery: PasteTO = PasteTO(-1, "asdf", -1, null, null, false)
-//    val expectedResult: PasteTO = PasteTO(1, "asdf", 1, "", "", true)
-//    Mockito.when(pasteManager.pasteDao.queryPasteByPasteId(pasteQuery)).thenReturn(Some(expectedResult))
-//    val (actual, message) = pasteManager.updatePasteVisibility(Some("1"), "asdf", false)
-//    assert(actual)
-//  }
-//
+
+  "Restrict and filter" should "limit the value for content down to a set length" in {
+    val results = pasteManager.restrictAndFilterSearch(createPasteSearchResult.map(convertPasteToPasteTO), None)
+    results.filter(x => x.content.length > 35) should have size 0
+  }
+
+  it should "filter out private posts if there is no user" in {
+    val results = pasteManager.restrictAndFilterSearch(createPasteSearchResultWithOnePrivate.map(convertPasteToPasteTO), None)
+    results.filter(x => x.isPrivate) should have size 0
+    results should have size 5
+  }
+
+  it should "filter out private posts if user is incorrect" in {
+    val results = pasteManager.restrictAndFilterSearch(createPasteSearchResultWithOnePrivate.map(convertPasteToPasteTO), Some("12345"))
+    results.filter(x => x.isPrivate) should have size 0
+    results should have size 5
+  }
+
+  it should "include private posts if search result matches passed in user" in {
+    val results = pasteManager.restrictAndFilterSearch(createPasteSearchResultWithOnePrivate.map(convertPasteToPasteTO), Some("1"))
+    results.filter(x => x.isPrivate) should have size 1
+    results should have size 6
+  }
+
+  "visibility" should "be able to be updated if owner is logged in" in {
+    val pasteId = "asdf"
+    (pasteManager.pastes.byPasteId _) expects (pasteId) returning (Success(Some(Paste(Some(1), pasteId, 1, "", "", true))))
+    (pasteManager.pastes.updateVisibility _) expects(*) returning (Success(1))
+    val (actual, message) = pasteManager.updatePasteVisibility(Some("1"), pasteId, false)
+    assert(actual)
+  }
+
 //  it should "fail to update when the passed in user id is closed" in {
 //    val (actual, message) = pasteManager.updatePasteVisibility(Option.empty, "asdf", false)
 //    assert(!actual)
@@ -148,4 +139,6 @@ class PasteManagerTest extends BaseTestSpec {
     case paste if paste.title == "title 4" => paste.copy(isPrivate = true)
     case _ => x
   })
+
+  def convertPasteToPasteTO(p: Paste): PasteTO = PasteTO(p.id.get, p.pasteId, p.ownerId, p.title, p.content, p.isPrivate)
 }

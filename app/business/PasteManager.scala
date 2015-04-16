@@ -98,14 +98,6 @@ class PasteManager extends PGDaoTrait {
 object PasteManager {
 
   /**
-   * Converts part of a string to an <a />
-   * "hello https://github.com/maximx1 world" -> "hello <a href='https://github.com/maximx1'>https://github.com/maximx1</a> world"
-   * @param content The string to convert.
-   * @return The converted string.
-   */
-  def convertLinksToHTML(content: String): String = content.replaceAll("\\[(.*)\\]\\((.*)\\)", "<a href='$2'>$1</a>")
-
-  /**
    * Converts content to markdown.
    * @param paste The paste with the original content.
    * @return The paste with the converted content.

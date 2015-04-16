@@ -48,6 +48,6 @@ trait BaseSlickTrait[E <: Model] {
 }
 
 object TableQueries {
-  val profiles = TableQuery[Profiles]
-  val pastes  = TableQuery[Pastes]
+  val profiles = TableQuery[ProfilesTable]
+  val pastes  = TableQuery[PastesTable]
 }

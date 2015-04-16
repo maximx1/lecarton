@@ -17,7 +17,7 @@ case class Paste(
   isPrivate: Boolean
 ) extends Model
 
-class Pastes(tag: Tag) extends Table[Paste](tag, "PASTES") {
+class PastesTable(tag: Tag) extends Table[Paste](tag, "PASTES") {
   def id = column[Option[Long]]("ID", O.PrimaryKey, O.AutoInc)
   def pasteId = column[String]("PASTEID", O.NotNull)
   def ownerId = column[Long]("OWNERID", O.NotNull)
@@ -27,7 +27,7 @@ class Pastes(tag: Tag) extends Table[Paste](tag, "PASTES") {
   def * = (id, pasteId, ownerId, title, content, isPrivate) <> (Paste.tupled, Paste.unapply)
 }
 
-object Pastes extends BaseSlickTrait[Paste] {
+class Pastes extends BaseSlickTrait[Paste] {
   def model = TableQueries.pastes
 
   def insert(p: Paste) = Try {

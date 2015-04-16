@@ -1,18 +1,15 @@
 package business
 
 import scala.util.{Success, Failure}
-import dao.{ProfileDao, PasteDao}
-import models._
+import dao.{PGDaoTrait, ProfileDao, PasteDao}
+import models.{Pastes, Profiles, PasteTO}
 import org.pegdown.PegDownProcessor
 
 /**
  * Business object for paste management.
  * Created by justin on 11/3/14.
  */
-class PasteManager {
-
-  var pasteDao: PasteDao = new PasteDao
-  var profileDao: ProfileDao = new ProfileDao
+class PasteManager extends PGDaoTrait {
   val ownerNotSignedInError = "Owner not signed in"
   val dbError = "Database Error"
   val notFound = "Entry not found"
@@ -26,15 +23,15 @@ class PasteManager {
    */
   def handlePasteSearch(searchScope: String, searchString: String, sessionUserId: Option[String]): List[PasteTO] = {
       if(searchScope == "titles") {
-        return Pastes.byTitle(searchString) match {
+        return pastes.byTitle(searchString) match {
           case Success(x) => restrictAndFilterSearch(x.map(y => PasteTO(y.id.get, y.pasteId, y.ownerId, y.title, y.content, y.isPrivate)), sessionUserId)
           case Failure(x) => { println(x); return List.empty }
         }
       }
       else if(searchScope == "profiles") {
-        return Profiles.byUsername(searchString) match {
+        return profiles.byUsername(searchString) match {
           case Success(Some(x)) => {
-            Pastes.byOwner(x.id.get) match {
+            pastes.byOwner(x.id.get) match {
               case Success(x) => restrictAndFilterSearch(x.map(y => PasteTO(y.id.get, y.pasteId, y.ownerId, y.title, y.content, y.isPrivate)), sessionUserId)
               case Failure(x) => { println(x); return List.empty }
             }
@@ -57,10 +54,10 @@ class PasteManager {
    */
   def updatePasteVisibility(userId: Option[String], pasteId: String, isPrivate: Boolean): (Boolean, String) = {
     userId.map { x: String =>
-      val result = Pastes.byPasteId(pasteId)
+      val result = pastes.byPasteId(pasteId)
       result match {
         case Success(Some(y)) if y.ownerId == x.toLong => {
-          Pastes.updateVisibility(y.copy(isPrivate = isPrivate)) match {
+          pastes.updateVisibility(y.copy(isPrivate = isPrivate)) match {
             case Success(z) => return (true, null)
             case Failure(e) => { println(e); (false, dbError) }
             case _ => (false, notFound)

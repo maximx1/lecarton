@@ -1,7 +1,7 @@
 package business
 
-import dao.ProfileDao
-import models.{Profile, Profiles, ProfileTO}
+import dao.{PGDaoTrait, ProfileDao}
+import models.{Pastes, Profile, Profiles, ProfileTO}
 import org.mindrot.jbcrypt.BCrypt
 
 import scala.util.{Failure, Success}
@@ -10,7 +10,7 @@ import scala.util.{Failure, Success}
  * Business logic for handling profiles.
  * Created by justin on 11/7/14.
  */
-class ProfileManager {
+class ProfileManager extends PGDaoTrait {
   var profileDao: ProfileDao = new ProfileDao
 
   /**
@@ -18,7 +18,7 @@ class ProfileManager {
    * @param username The username to search for.
    * @return true if exists.
    */
-  def userExists(username: String): Option[Boolean] = Profiles.byUsername(username) match {
+  def userExists(username: String): Option[Boolean] = profiles.byUsername(username) match {
     case Success(x) => Some(!x.isEmpty)
     case Failure(x) => { println(x); None }
   }
@@ -28,7 +28,7 @@ class ProfileManager {
    * @param userId The user's id to search for.
    * @return true if exists.
    */
-  def userExists(userId: Long): Option[Boolean] = Profiles.byId(userId) match {
+  def userExists(userId: Long): Option[Boolean] = profiles.byId(userId) match {
     case Success(x) => Some(!x.isEmpty)
     case Failure(x) => { println(x); None }
   }
@@ -44,7 +44,7 @@ class ProfileManager {
     case Some(x) if x => null
     case Some(x) if !x => {
       val newProfile = Profile(None, username, password, email, isAdmin)
-      Profiles += newProfile match {
+      profiles += newProfile match {
         case Success(x) => ProfileTO(-1, newProfile.username, null, newProfile.email, newProfile.isAdmin)
         case Failure(x) => null
       }
@@ -59,7 +59,7 @@ class ProfileManager {
    * @return The ProfileTO of the logged in user profile.
    */
   def attemptLogin(username: String, password: String): ProfileTO = {
-    Profiles.byUsername(username) match {
+    profiles.byUsername(username) match {
       case Success(Some(x)) => return if (BCrypt.checkpw(password, x.password)) ProfileTO(x.id.get, x.username, null, x.email, x.isAdmin) else null
       case Failure(x) => { println(x); null }
       case _ => null

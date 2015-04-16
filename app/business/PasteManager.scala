@@ -1,18 +1,19 @@
 package business
 
-import dao.{ProfileDao, PasteDao}
-import models.{ProfileTO, PasteTO}
+import scala.util.{Success, Failure}
+import dao.{PGDaoTrait, ProfileDao, PasteDao}
+import models.{Pastes, Profiles, PasteTO}
 import org.pegdown.PegDownProcessor
 
 /**
  * Business object for paste management.
  * Created by justin on 11/3/14.
  */
-class PasteManager {
-
-  var pasteDao: PasteDao = new PasteDao
-  var profileDao: ProfileDao = new ProfileDao
+class PasteManager extends PGDaoTrait {
   val ownerNotSignedInError = "Owner not signed in"
+  val dbError = "Database Error"
+  val notFound = "Entry not found"
+  val failUnspecified = "Unspecified error doing action"
 
   /**
    * Handles search situations using the scope and a search parameter.
@@ -22,21 +23,22 @@ class PasteManager {
    */
   def handlePasteSearch(searchScope: String, searchString: String, sessionUserId: Option[String]): List[PasteTO] = {
       if(searchScope == "titles") {
-          val publicQuery = PasteTO(-1, null, -1, searchString, null, false)
-          val privateQuery = PasteTO(-1, null, -1, searchString, null, true)
-          val queryResults = pasteDao.queryPasteByTitle(publicQuery) ::: pasteDao.queryPasteByTitle(privateQuery)
-          return restrictAndFilterSearch(queryResults, sessionUserId)
+        return pastes.byTitle(searchString) match {
+          case Success(x) => restrictAndFilterSearch(x.map(y => PasteTO(y.id.get, y.pasteId, y.ownerId, y.title, y.content, y.isPrivate)), sessionUserId)
+          case Failure(x) => { println(x); return List.empty }
+        }
       }
       else if(searchScope == "profiles") {
-        val profileQuery = ProfileTO(-1, searchString, null, null, false)
-        val profileData = profileDao.queryUserProfileByUsername(profileQuery)
-        if (profileData == null) {
-          return List.empty
+        return profiles.byUsername(searchString) match {
+          case Success(Some(x)) => {
+            pastes.byOwner(x.id.get) match {
+              case Success(x) => restrictAndFilterSearch(x.map(y => PasteTO(y.id.get, y.pasteId, y.ownerId, y.title, y.content, y.isPrivate)), sessionUserId)
+              case Failure(x) => { println(x); return List.empty }
+            }
+          }
+          case Failure(x) => { println(x); return List.empty }
+          case _ => List.empty
         }
-        val publicQuery = PasteTO(-1, null, profileData.get._id, null, null, false)
-        val privateQuery = PasteTO(-1, null, profileData.get._id, null, null, true)
-        val queryResults = pasteDao.queryPastesOfOwner(publicQuery) ::: pasteDao.queryPastesOfOwner(privateQuery)
-        return restrictAndFilterSearch(queryResults, sessionUserId)
       }
       else {
           return List.empty
@@ -47,25 +49,23 @@ class PasteManager {
    * Updates a paste's visibility.
    * @param userId The sessions user id.
    * @param pasteId The paste id from the request.
+   * @param isPrivate The new visibility.
    * @return A tuple of a bool and a message.
    */
   def updatePasteVisibility(userId: Option[String], pasteId: String, isPrivate: Boolean): (Boolean, String) = {
-    userId match {
-      case Some (x) => {
-        val pasteQuery: PasteTO = PasteTO (-1, pasteId, -1, null, null, false)
-        val result = pasteDao.queryPasteByPasteId (pasteQuery)
-
-        if (x.toLong == result.get.owner) {
-          result.get.isPrivate = isPrivate
-          pasteDao.updatePaste (result.get)
-          return (true, null)
+    userId.map { x: String =>
+      val result = pastes.byPasteId(pasteId)
+      result match {
+        case Success(Some(y)) if y.ownerId == x.toLong => {
+          pastes.updateVisibility(y.copy(isPrivate = isPrivate)) match {
+            case Success(z) => return (true, null)
+            case Failure(e) => { println(e); (false, dbError) }
+            case _ => (false, notFound)
+          }
         }
-        else {
-          return (false, ownerNotSignedInError)
-        }
+        case _ => (false, ownerNotSignedInError)
       }
-      case None => (false, ownerNotSignedInError)
-    }
+    }.getOrElse((false, failUnspecified))
   }
 
   /**

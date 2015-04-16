@@ -28,39 +28,24 @@ class PasteManagerTest extends BaseTestSpec {
     pasteManager.handlePasteSearch("completely invalid scope", null, None) should have size 0
   }
 
-//  it should "be able to look up by owner" in {
-//    val testName = "mrOwnerMan"
-//    val expectedProfileSearchQuery = ProfileTO(-1, testName, null, null, false)
-//    val expectedProfileSearchResponse = ProfileTO(1, testName, null, null, false)
-//    Mockito.when(pasteManager.profileDao.queryUserProfileByUsername(expectedProfileSearchQuery)).thenReturn(Some(expectedProfileSearchResponse))
-//
-//    val privateExpectedQuery = PasteTO(-1, null, 1, null, null, false)
-//    val publicExpectedQuery = PasteTO(-1, null, 1, null, null, true)
-//    Mockito.when(pasteManager.pasteDao.queryPastesOfOwner(privateExpectedQuery)).thenReturn(List.empty)
-//    Mockito.when(pasteManager.pasteDao.queryPastesOfOwner(publicExpectedQuery)).thenReturn(createPasteSearchResult)
-//    val results = pasteManager.handlePasteSearch("profiles", testName, None)
-//    results should have size createPasteSearchResult.size
-//  }
+  it should "be able to look up by owner" in {
+    val testName = "mrOwnerMan"
+    (pasteManager.profiles.byUsername _) expects(testName) returning(Success(Some(Profile(Some(1), testName, null, null, false))))
+    (pasteManager.pastes.byOwner _) expects (1l) returning(Success(createPasteSearchResult))
+    pasteManager.handlePasteSearch("profiles", testName, None) should have size createPasteSearchResult.size
+  }
 
   it should "return an empty list when owning profile isn't found" in {
     (pasteManager.profiles.byUsername _) expects("mrOwnerMan") returning (null)
     pasteManager.handlePasteSearch("profiles", "mrOwnerMan", None) should have size 0
   }
 
-//  it should "return an empty list when there are no results when searching by profile owner" in {
-//    val testName = "mrOwnerMan"
-//    val ownersObjectId = 1
-//    val expectedProfileSearchQuery = ProfileTO(-1, testName, null, null, false)
-//    val expectedProfileSearchResponse = ProfileTO(1, testName, null, null, false)
-//    Mockito.when(pasteManager.profileDao.queryUserProfileByUsername(expectedProfileSearchQuery)).thenReturn(Some(expectedProfileSearchResponse))
-//
-//    val privateExpectedQuery = PasteTO(-1, null, ownersObjectId, null, null, false)
-//    val publicExpectedQuery = PasteTO(-1, null, ownersObjectId, null, null, true)
-//    Mockito.when(pasteManager.pasteDao.queryPastesOfOwner(privateExpectedQuery)).thenReturn(List.empty)
-//    Mockito.when(pasteManager.pasteDao.queryPastesOfOwner(publicExpectedQuery)).thenReturn(List.empty)
-//    val results = pasteManager.handlePasteSearch("profiles", testName, None)
-//    results should have size 0
-//  }
+  it should "return an empty list when there are no results when searching by profile owner" in {
+    val testName = "mrOwnerMan"
+    (pasteManager.profiles.byUsername _) expects(testName) returning(Success(Some(Profile(Some(1), testName, null, null, false))))
+    (pasteManager.pastes.byOwner _) expects (1l) returning(Success(List.empty))
+    pasteManager.handlePasteSearch("profiles", testName, None) should have size 0
+  }
 
   "Restrict and filter" should "limit the value for content down to a set length" in {
     val results = pasteManager.restrictAndFilterSearch(createPasteSearchResult.map(convertPasteToPasteTO), None)
@@ -93,38 +78,37 @@ class PasteManagerTest extends BaseTestSpec {
     assert(actual)
   }
 
-//  it should "fail to update when the passed in user id is closed" in {
-//    val (actual, message) = pasteManager.updatePasteVisibility(Option.empty, "asdf", false)
-//    assert(!actual)
-//  }
-//
-//  it should "fail to update when the passed in user id doesn't match the paste's owner" in {
-//    val pasteQuery: PasteTO = PasteTO(-1, "asdf", -1, null, null, false)
-//    val expectedResult: PasteTO = PasteTO(1, "asdf", 1, "", "", true)
-//    Mockito.when(pasteManager.pasteDao.queryPasteByPasteId(pasteQuery)).thenReturn(Some(expectedResult))
-//    val (actual, message) = pasteManager.updatePasteVisibility(Some("2"), "asdf", false)
-//    assert(!actual)
-//  }
-//
-//  "Markdown content conversion" should "convert a markdown link to markdown" in {
-//    val actual = PasteManager.contentToMd(Some(markdownConvertedExample)).get
-//    actual.content should be ("<p><a href=\"https://google.com\">google</a></p>")
-//  }
-//
-//  it should "not change any of the other values in the TO" in {
-//    val actual = PasteManager.contentToMd(Some(markdownConvertedExample)).get
-//    actual._id should be (1)
-//    actual.pasteId should be ("asdf")
-//    actual.title should be ("title 1")
-//    actual.isPrivate should be (false)
-//  }
-//
-//  it should "return none if the input TO is none" in {
-//    val actual = PasteManager.contentToMd(None)
-//    actual should be (None)
-//  }
-//
-//  val markdownConvertedExample = PasteTO(1, "asdf", 1, "title 1", "[google](https://google.com)", false)
+  it should "fail to update when the passed in user id is closed" in {
+    val (actual, message) = pasteManager.updatePasteVisibility(Option.empty, "asdf", false)
+    assert(!actual)
+  }
+
+  it should "fail to update when the passed in user id doesn't match the paste's owner" in {
+    val pasteId = "asdf"
+    (pasteManager.pastes.byPasteId _) expects (pasteId) returning (Success(Some(Paste(Some(1), pasteId, 1, "", "", true))))
+    val (actual, message) = pasteManager.updatePasteVisibility(Some("2"), pasteId, false)
+    assert(!actual)
+  }
+
+  "Markdown content conversion" should "convert a markdown link to markdown" in {
+    val actual = PasteManager.contentToMd(Some(markdownConvertedExample)).get
+    actual.content should be ("<p><a href=\"https://google.com\">google</a></p>")
+  }
+
+  it should "not change any of the other values in the TO" in {
+    val actual = PasteManager.contentToMd(Some(markdownConvertedExample)).get
+    actual._id should be (1)
+    actual.pasteId should be ("asdf")
+    actual.title should be ("title 1")
+    actual.isPrivate should be (false)
+  }
+
+  it should "return none if the input TO is none" in {
+    val actual = PasteManager.contentToMd(None)
+    actual should be (None)
+  }
+
+  val markdownConvertedExample = PasteTO(1, "asdf", 1, "title 1", "[google](https://google.com)", false)
 
   val createPasteSearchResult: List[Paste] = List(
     Paste(Some(1), "aaaa", 1, "title 1", PasteDao.generateRandomString(40), false),

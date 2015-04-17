@@ -11,7 +11,6 @@ import scala.util.{Failure, Success}
  * Created by justin on 11/7/14.
  */
 class ProfileManager extends PGDaoTrait {
-  var profileDao: ProfileDao = new ProfileDao
 
   /**
    * Does a quick check to verify that the user does indeed exist.

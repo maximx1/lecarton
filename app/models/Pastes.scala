@@ -50,6 +50,11 @@ class Pastes extends BaseSlickTrait[Paste] {
     }
   }
 
+  /**
+   *
+   * @param p
+   * @return
+   */
   def updateVisibility(p: Paste) = Try {
     DB withSession { implicit session =>
       model.filter(_.id === p.id).map(_.isPrivate).update(p.isPrivate)

@@ -1,17 +1,13 @@
 package business
 
-import dao.{ProfileDao, PasteDao}
+import dao.PasteDao
 import models._
-import org.scalatest.mock.MockitoSugar
-import org.scalatest.{FlatSpec, BeforeAndAfter, Matchers}
-import org.mockito.Mockito
 import test.core.BaseTestSpec
 
 import scala.util.Success
 
 class PasteManagerTest extends BaseTestSpec {
-
-  var pasteManager: PasteManager = new PasteManager with TestDaoTrait
+  val pasteManager: PasteManager = new PasteManager with TestDaoTrait
   val contentFieldPreviewMaxLength = 35
 
   "Search" should "be able to look up by title" in {

@@ -1,6 +1,6 @@
-@(pasteTO: PasteTO)(implicit session: play.api.mvc.Session)
-@if(pasteTO != null) {
-    @header("Paste: " + pasteTO.pasteId)
+@(paste: Paste)(implicit session: play.api.mvc.Session)
+@if(paste != null) {
+    @header("Paste: " + paste.pasteId)
 } else {
     @header("Paste not found")
 }
@@ -13,14 +13,14 @@
         <script src='@routes.Assets.at("lib/bootstrap-switch.min.js")'></script>
         @titlebar()(session)
 		<div id="mainContainer">
-            @if(pasteTO != null) {
-                <h1>@pasteTO.title</h1>
-                <input id="idNumber" type="hidden" value="@pasteTO.pasteId" />
+            @if(paste != null) {
+                <h1>@paste.title</h1>
+                <input id="idNumber" type="hidden" value="@paste.pasteId" />
                 <hr />
-                <p>@Html(pasteTO.content)</p>
+                <p>@Html(paste.content)</p>
                 <br />
                 <div class="make-switch">
-                    <input id="publicPrivateSwitch" type="checkbox" data-on-text="public" data-off-text="private" name="isPublic" @if(!pasteTO.isPrivate) { checked } />
+                    <input id="publicPrivateSwitch" type="checkbox" data-on-text="public" data-off-text="private" name="isPublic" @if(!paste.isPrivate) { checked } />
                 </div>
             } else {
                 <h1>Paste not found</h1>

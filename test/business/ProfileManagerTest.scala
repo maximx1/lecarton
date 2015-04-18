@@ -1,7 +1,6 @@
 package business
 
-import dao.ProfileDao
-import models.{Profile, ProfileTO}
+import models.Profile
 import org.mindrot.jbcrypt.BCrypt
 import test.core.BaseTestSpec
 

@@ -2,9 +2,8 @@ package controllers
 
 import business.{ProfileManager, PasteManager}
 import play.api.mvc._
-import dao.{ProfileDao, PasteDao}
-import models.{ProfileTO, PasteTO}
-import business.PasteManager.contentToMd
+import models.Paste
+import utils.ConversionUtils.contentToMd
 import scala.concurrent.Future
 import play.api.libs.concurrent.Execution.Implicits._
 import controllers.forms._
@@ -19,24 +18,23 @@ object Application extends Controller {
     val sessionUserId = request.session.get("loggedInUser_id")
     val owner: Long = if (sessionUserId.isEmpty) 1 else sessionUserId.get.toLong
     val storePrivate = if (owner == 1) false else isPublic.isEmpty
-    val result = (new PasteDao).createPaste(owner, title, content, storePrivate)
-    Ok(views.html.index(result.pasteId)(request.session))
+    val result = (new PasteManager).createPaste(owner, title, content, storePrivate)
+    Ok(views.html.index(if(result != null) result.pasteId else "Unspecified error creating paste")(request.session))
   }
   
   def displayPaste(pasteId: String) = Action { implicit request =>
     val sessionUserId = request.session.get("loggedInUser_id")
-	  val pasteQuery = PasteTO(-1, pasteId, -1, null, null, false)
-	  val result = (new PasteDao).queryPasteByPasteId(pasteQuery)
-    val verifiedResult: PasteTO = result match {
+	  val result = (new PasteManager).queryPasteByPasteId(pasteId)
+    val verifiedResult: Paste = result match {
       case Some(x) => {
         sessionUserId match {
-          case Some(y) => if (y.toLong != x.owner && x.isPrivate) null else contentToMd(Some(x)).get
-          case None => if(x.isPrivate) pasteQuery else contentToMd(Some(x)).get
+          case Some(y) => if (y.toLong != x.ownerId && x.isPrivate) null else contentToMd(Some(x)).get
+          case None => if(x.isPrivate) Paste(Some(-1), pasteId, -1, null, null, false) else contentToMd(Some(x)).get
         }
       }
       case None => null
     }
-    if (verifiedResult != null && verifiedResult._id == -1) {
+    if (verifiedResult != null && verifiedResult.id.get == -1) {
       Redirect(routes.Application.login) withNewSession
     } else {
       Ok(views.html.paste(verifiedResult)(request.session))
@@ -45,7 +43,7 @@ object Application extends Controller {
 
   def search(searchScope: String, searchString: String) = Action.async { implicit request =>
     val sessionUserId = request.session.get("loggedInUser_id")
-    val result: Future[List[PasteTO]] = Future {(new PasteManager).handlePasteSearch(searchScope, searchString, sessionUserId)}
+    val result: Future[List[Paste]] = Future {(new PasteManager).handlePasteSearch(searchScope, searchString, sessionUserId)}
 
     result.map {x =>
       Ok(views.html.searchResults(x, searchScope, searchString)(request.session))
@@ -65,7 +63,7 @@ object Application extends Controller {
     else {
       Redirect(routes.Application.index) withSession(
         "loggedInUsername" -> result.username,
-        "loggedInUser_id" -> result._id.toString,
+        "loggedInUser_id" -> result.id.toString,
         "loggedInUserIsAdmin" -> result.isAdmin.toString
       )
     }
@@ -120,10 +118,7 @@ object Application extends Controller {
   def loadProfile(username: String) = Action { implicit request =>
     val sessionUserId = request.session.get("loggedInUser_id")
 
-    val profileQuery = ProfileTO(-1, username, null, null, false)
-    val profileResults = (new ProfileDao).queryUserProfileByUsername(profileQuery)
-
-    profileResults match {
+      (new ProfileManager).queryUserProfileByUsername(username) match {
       case Some(x) => {
         val pasteManager: PasteManager = new PasteManager
         Ok(views.html.profile(x, pasteManager.handlePasteSearch("profiles", username, sessionUserId))(request.session))
@@ -135,7 +130,7 @@ object Application extends Controller {
   def loadAdmin = Action { implicit request =>
     val isUserAdmin = request.session.get("loggedInUserIsAdmin")
     if(parseIsAdminFromFormIfUserIsAdmin(isUserAdmin)) {
-      Ok(views.html.admin((new PasteDao).pasteCount, (new ProfileDao).profileCount)(request.session))
+      Ok(views.html.admin((new PasteManager).countPastes, (new ProfileManager).countProfiles)(request.session))
     }
     else {
       Ok(views.html.error404()(request.session))

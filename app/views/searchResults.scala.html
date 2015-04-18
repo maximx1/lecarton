@@ -1,4 +1,4 @@
-@(pasteTOs: List[PasteTO], searchScope: String, searchParam: String)(implicit session: play.api.mvc.Session)
+@(pastes: List[Paste], searchScope: String, searchParam: String)(implicit session: play.api.mvc.Session)
 @header("Search: " + searchParam)
 	<body>
         <link rel="stylesheet" type="text/css" href="@routes.Assets.at("stylesheets/main.css")">
@@ -11,7 +11,7 @@
         <script src="@routes.Assets.at("javascripts/search_results.js")"></script>
         @titlebar()(session)
 		<div id="mainContainer">
-            @if(pasteTOs.isEmpty) {
+            @if(pastes.isEmpty) {
                 <h1 class="errorMessage">There were no results</h1>
             } else {
                 <h1>Search results for "@searchParam"</h1>
@@ -27,11 +27,11 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @pasteTOs.map { pasteTO =>
+                    @pastes.map { paste =>
                         <tr>
-                            <td><a href="/p/@pasteTO.pasteId">@pasteTO.pasteId</a></td>
-                            <td>@pasteTO.title</td>
-                            <td>@pasteTO.content</td>
+                            <td><a href="/p/@paste.pasteId">@paste.pasteId</a></td>
+                            <td>@paste.title</td>
+                            <td>@paste.content</td>
                             <td>@searchScope</td>
                         </tr>
                     }

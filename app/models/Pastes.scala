@@ -1,7 +1,8 @@
 package models
 
+import utils.RandomUtils
+
 import scala.util.Random
-import dao.PasteDao
 import play.api.Play.current
 import play.api.db.slick.DB
 import play.api.db.slick.Config.driver.simple._
@@ -32,7 +33,7 @@ class Pastes extends BaseSlickTrait[Paste] {
 
   def insert(p: Paste): Try[Paste] = Try {
     DB withSession { implicit session =>
-      val pasteWithId = p.copy(pasteId = PasteDao.generateRandomString(8))
+      val pasteWithId = p.copy(pasteId = RandomUtils.generateRandomString(8))
       model += pasteWithId
       pasteWithId
     }

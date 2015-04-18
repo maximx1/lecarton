@@ -2,7 +2,7 @@ package business
 
 import scala.util.{Success, Failure}
 import dao.{PGDaoTrait, ProfileDao, PasteDao}
-import models.{Pastes, Profiles, PasteTO}
+import models.{Pastes, Profiles, PasteTO, Paste}
 import org.pegdown.PegDownProcessor
 
 /**
@@ -24,7 +24,7 @@ class PasteManager extends PGDaoTrait {
   def handlePasteSearch(searchScope: String, searchString: String, sessionUserId: Option[String]): List[PasteTO] = {
       if(searchScope == "titles") {
         return pastes.byTitle(searchString) match {
-          case Success(x) => restrictAndFilterSearch(x.map(y => PasteTO(y.id.get, y.pasteId, y.ownerId, y.title, y.content, y.isPrivate)), sessionUserId)
+          case Success(x) => restrictAndFilterSearch(x, sessionUserId).map(y => PasteTO(y.id.get, y.pasteId, y.ownerId, y.title, y.content, y.isPrivate))
           case Failure(x) => { println(x); return List.empty }
         }
       }
@@ -32,7 +32,7 @@ class PasteManager extends PGDaoTrait {
         return profiles.byUsername(searchString) match {
           case Success(Some(x)) => {
             pastes.byOwner(x.id.get) match {
-              case Success(x) => restrictAndFilterSearch(x.map(y => PasteTO(y.id.get, y.pasteId, y.ownerId, y.title, y.content, y.isPrivate)), sessionUserId)
+              case Success(x) => restrictAndFilterSearch(x, sessionUserId).map(y => PasteTO(y.id.get, y.pasteId, y.ownerId, y.title, y.content, y.isPrivate))
               case Failure(x) => { println(x); return List.empty }
             }
           }
@@ -74,7 +74,7 @@ class PasteManager extends PGDaoTrait {
    * @param sessionUserId The optional session id
    * @return The restricted results.
    */
-  def restrictAndFilterSearch(queryResults: List[PasteTO], sessionUserId: Option[String]): List[PasteTO] = {
+  def restrictAndFilterSearch(queryResults: List[Paste], sessionUserId: Option[String]): List[Paste] = {
     return queryResults.filter({ x =>
       var isNotRestricted = true
       if(sessionUserId.isEmpty) {
@@ -82,12 +82,12 @@ class PasteManager extends PGDaoTrait {
           isNotRestricted = false
         }
       }
-      else if(x.isPrivate && sessionUserId.get.toLong != x.owner) {
+      else if(x.isPrivate && sessionUserId.get.toLong != x.ownerId) {
         isNotRestricted = false
       }
       isNotRestricted
     }).map(
-      x => { x.content = x.content.slice(0, 35);x }
+      x => { x.copy(content = x.content.slice(0, 35)) }
     )
   }
 }
@@ -103,9 +103,9 @@ object PasteManager {
    * @return The paste with the converted content.
    */
   def contentToMd(paste: Option[PasteTO]): Option[PasteTO] = {
-      paste match {
-        case Some(x) => Some(x.copy(content = (new PegDownProcessor).markdownToHtml(x.content)))
-        case None => None
-      }
+    paste match {
+      case Some(x) => Some(x.copy(content = (new PegDownProcessor).markdownToHtml(x.content)))
+      case None => None
+    }
   }
 }

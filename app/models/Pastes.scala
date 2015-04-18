@@ -30,7 +30,7 @@ class PastesTable(tag: Tag) extends Table[Paste](tag, "PASTES") {
 class Pastes extends BaseSlickTrait[Paste] {
   def model = TableQueries.pastes
 
-  def insert(p: Paste) = Try {
+  def insert(p: Paste): Try[Paste] = Try {
     DB withSession { implicit session =>
       val pasteWithId = p.copy(pasteId = PasteDao.generateRandomString(8))
       model += pasteWithId
@@ -38,30 +38,25 @@ class Pastes extends BaseSlickTrait[Paste] {
     }
   }
 
-  def byOwner(id: Long) = Try {
+  def byOwner(id: Long): Try[List[Paste]] = Try {
     DB withSession { implicit session =>
       model.filter(_.ownerId === id).list
     }
   }
 
-  def byPasteId(pasteId: String) = Try {
+  def byPasteId(pasteId: String): Try[Option[Paste]] = Try {
     DB withSession { implicit session =>
       model.filter(_.pasteId === pasteId).list.headOption
     }
   }
 
-  /**
-   *
-   * @param p
-   * @return
-   */
-  def updateVisibility(p: Paste) = Try {
+  def updateVisibility(p: Paste): Try[Int] = Try {
     DB withSession { implicit session =>
       model.filter(_.id === p.id).map(_.isPrivate).update(p.isPrivate)
     }
   }
 
-  def byTitle(title: String) = Try {
+  def byTitle(title: String): Try[List[Paste]] = Try {
     DB withSession { implicit session =>
       model.filter(_.title like "%" + title + "%").list
     }
@@ -70,5 +65,5 @@ class Pastes extends BaseSlickTrait[Paste] {
   /**
    * Generates a sting of n length.
    */
-  def generateRandomString(length: Int) = Random.alphanumeric.take(length).mkString
+  def generateRandomString(length: Int): String = Random.alphanumeric.take(length).mkString
 }

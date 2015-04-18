@@ -26,15 +26,15 @@ class ProfilesTable(tag: Tag) extends Table[Profile](tag, "PROFILES") {
 class Profiles extends BaseSlickTrait[Profile] {
   def model = TableQueries.profiles
 
-  override def +=(p: Profile) = super.+=(p.copy(password = BCrypt.hashpw(p.password, BCrypt.gensalt(4))))
+  override def +=(p: Profile): Try[Int] = super.+=(p.copy(password = BCrypt.hashpw(p.password, BCrypt.gensalt(4))))
 
-  def byUsername(username: String) = Try {
+  def byUsername(username: String): Try[Option[Profile]] = Try {
     DB withSession { implicit session =>
       model.filter(_.username === username).list.headOption
     }
   }
 
-  def byId(id: Long) = Try {
+  def byId(id: Long): Try[Option[Profile]] = Try {
     DB withSession { implicit session =>
       model.filter(_.id === id).list.headOption
     }

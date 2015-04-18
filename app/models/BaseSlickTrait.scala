@@ -24,13 +24,13 @@ trait BaseSlickTrait[E <: Model] {
    * Selects all the rows from the current table.
    * @return Retrieves all rows as if 'SELECT *'
    */
-  def all = DB withSession { implicit session => model.list }
+  def all: Try[List[E]] = Try { DB withSession { implicit session => model.list } }
 
   /**
    * Gets the count of the current table.
    * @return The count as if 'SELECT COUNT(*)'
    */
-  def size = DB withSession { implicit session => model.length.run }
+  def size: Try[Int] = Try { DB withSession { implicit session => model.length.run } }
 
   /**
    * Adds item to the collection.
@@ -44,7 +44,7 @@ trait BaseSlickTrait[E <: Model] {
    * @param e The entities to add.
    * @return By default returns the number of rows inserted.
    */
-  def ++=(e: Seq[E]): Try[Option[Int]] = Try { DB withSession { implicit session => model ++= e }}
+  def ++=(e: Seq[E]): Try[Option[Int]] = Try { DB withSession { implicit session => model ++= e } }
 }
 
 object TableQueries {

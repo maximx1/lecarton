@@ -1,4 +1,4 @@
-@(profileTO: ProfileTO, pastes: List[PasteTO])(implicit session: play.api.mvc.Session)
+@(profile: Profile, pastes: List[Paste])(implicit session: play.api.mvc.Session)
 @header("profile: " )
 	<body>
         <link rel="stylesheet" type="text/css" href='@routes.Assets.at("stylesheets/main.css")'>
@@ -11,8 +11,8 @@
         <script src='@routes.Assets.at("javascripts/search_results.js")'></script>
         @titlebar()(session)
 		<div id="mainContainer">
-		    @if(profileTO != null) {
-                <h1>@profileTO.username's profile</h1>
+		    @if(profile != null) {
+                <h1>@profile.username's profile</h1>
                 <hr />
                 <div class="width100p height100px">
                     @if(pastes.isEmpty) {
@@ -32,13 +32,13 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @pastes.map { pasteTO =>
+                        @pastes.map { paste =>
                             <tr>
-                                <td><a href="/p/@pasteTO.pasteId">@pasteTO.pasteId</a></td>
-                                <td>@pasteTO.title</td>
-                                <td>@pasteTO.content</td>
+                                <td><a href="/p/@paste.pasteId">@paste.pasteId</a></td>
+                                <td>@paste.title</td>
+                                <td>@paste.content</td>
                                 <td>
-                                    @if(pasteTO.isPrivate) {
+                                    @if(paste.isPrivate) {
                                         Private
                                     } else {
                                         Public

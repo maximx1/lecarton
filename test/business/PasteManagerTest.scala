@@ -1,8 +1,8 @@
 package business
 
-import dao.PasteDao
 import models._
 import test.core.BaseTestSpec
+import utils.{ConversionUtils, RandomUtils}
 
 import scala.util.Success
 
@@ -44,24 +44,24 @@ class PasteManagerTest extends BaseTestSpec {
   }
 
   "Restrict and filter" should "limit the value for content down to a set length" in {
-    val results = pasteManager.restrictAndFilterSearch(createPasteSearchResult.map(convertPasteToPasteTO), None)
+    val results = pasteManager.restrictAndFilterSearch(createPasteSearchResult, None)
     results.filter(x => x.content.length > 35) should have size 0
   }
 
   it should "filter out private posts if there is no user" in {
-    val results = pasteManager.restrictAndFilterSearch(createPasteSearchResultWithOnePrivate.map(convertPasteToPasteTO), None)
+    val results = pasteManager.restrictAndFilterSearch(createPasteSearchResultWithOnePrivate, None)
     results.filter(x => x.isPrivate) should have size 0
     results should have size 5
   }
 
   it should "filter out private posts if user is incorrect" in {
-    val results = pasteManager.restrictAndFilterSearch(createPasteSearchResultWithOnePrivate.map(convertPasteToPasteTO), Some("12345"))
+    val results = pasteManager.restrictAndFilterSearch(createPasteSearchResultWithOnePrivate, Some("12345"))
     results.filter(x => x.isPrivate) should have size 0
     results should have size 5
   }
 
   it should "include private posts if search result matches passed in user" in {
-    val results = pasteManager.restrictAndFilterSearch(createPasteSearchResultWithOnePrivate.map(convertPasteToPasteTO), Some("1"))
+    val results = pasteManager.restrictAndFilterSearch(createPasteSearchResultWithOnePrivate, Some("1"))
     results.filter(x => x.isPrivate) should have size 1
     results should have size 6
   }
@@ -87,38 +87,36 @@ class PasteManagerTest extends BaseTestSpec {
   }
 
   "Markdown content conversion" should "convert a markdown link to markdown" in {
-    val actual = PasteManager.contentToMd(Some(markdownConvertedExample)).get
+    val actual = ConversionUtils.contentToMd(Some(markdownConvertedExample)).get
     actual.content should be ("<p><a href=\"https://google.com\">google</a></p>")
   }
 
   it should "not change any of the other values in the TO" in {
-    val actual = PasteManager.contentToMd(Some(markdownConvertedExample)).get
-    actual._id should be (1)
+    val actual = ConversionUtils.contentToMd(Some(markdownConvertedExample)).get
+    actual.id.get should be (1)
     actual.pasteId should be ("asdf")
     actual.title should be ("title 1")
     actual.isPrivate should be (false)
   }
 
   it should "return none if the input TO is none" in {
-    val actual = PasteManager.contentToMd(None)
+    val actual = ConversionUtils.contentToMd(None)
     actual should be (None)
   }
 
-  val markdownConvertedExample = PasteTO(1, "asdf", 1, "title 1", "[google](https://google.com)", false)
+  val markdownConvertedExample = Paste(Some(1), "asdf", 1, "title 1", "[google](https://google.com)", false)
 
   val createPasteSearchResult: List[Paste] = List(
-    Paste(Some(1), "aaaa", 1, "title 1", PasteDao.generateRandomString(40), false),
-    Paste(Some(2), "bbbb", 1, "title 2", PasteDao.generateRandomString(40), false),
-    Paste(Some(3), "cccc", 1, "title 3", PasteDao.generateRandomString(40), false),
-    Paste(Some(4), "dddd", 1, "title 4", PasteDao.generateRandomString(40), false),
-    Paste(Some(5), "eeee", 1, "title 5", PasteDao.generateRandomString(40), false),
-    Paste(Some(6), "ffff", 1, "title 6", PasteDao.generateRandomString(40), false)
+    Paste(Some(1), "aaaa", 1, "title 1", RandomUtils.generateRandomString(40), false),
+    Paste(Some(2), "bbbb", 1, "title 2", RandomUtils.generateRandomString(40), false),
+    Paste(Some(3), "cccc", 1, "title 3", RandomUtils.generateRandomString(40), false),
+    Paste(Some(4), "dddd", 1, "title 4", RandomUtils.generateRandomString(40), false),
+    Paste(Some(5), "eeee", 1, "title 5", RandomUtils.generateRandomString(40), false),
+    Paste(Some(6), "ffff", 1, "title 6", RandomUtils.generateRandomString(40), false)
   )
 
   val createPasteSearchResultWithOnePrivate: List[Paste] = createPasteSearchResult.map(x => x match {
     case paste if paste.title == "title 4" => paste.copy(isPrivate = true)
     case _ => x
   })
-
-  def convertPasteToPasteTO(p: Paste): PasteTO = PasteTO(p.id.get, p.pasteId, p.ownerId, p.title, p.content, p.isPrivate)
 }

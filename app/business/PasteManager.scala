@@ -1,9 +1,8 @@
 package business
 
 import scala.util.{Success, Failure}
-import dao.{PGDaoTrait, ProfileDao, PasteDao}
-import models.{Pastes, Profiles, PasteTO, Paste}
-import org.pegdown.PegDownProcessor
+import dao.PGDaoTrait
+import models.{Paste}
 
 /**
  * Business object for paste management.
@@ -21,10 +20,10 @@ class PasteManager extends PGDaoTrait {
    * @param searchString The search string to look for.
    * @return List of pastes matching everything.
    */
-  def handlePasteSearch(searchScope: String, searchString: String, sessionUserId: Option[String]): List[PasteTO] = {
+  def handlePasteSearch(searchScope: String, searchString: String, sessionUserId: Option[String]): List[Paste] = {
       if(searchScope == "titles") {
         return pastes.byTitle(searchString) match {
-          case Success(x) => restrictAndFilterSearch(x, sessionUserId).map(y => PasteTO(y.id.get, y.pasteId, y.ownerId, y.title, y.content, y.isPrivate))
+          case Success(x) => restrictAndFilterSearch(x, sessionUserId)
           case Failure(x) => { println(x); return List.empty }
         }
       }
@@ -32,7 +31,7 @@ class PasteManager extends PGDaoTrait {
         return profiles.byUsername(searchString) match {
           case Success(Some(x)) => {
             pastes.byOwner(x.id.get) match {
-              case Success(x) => restrictAndFilterSearch(x, sessionUserId).map(y => PasteTO(y.id.get, y.pasteId, y.ownerId, y.title, y.content, y.isPrivate))
+              case Success(x) => restrictAndFilterSearch(x, sessionUserId)
               case Failure(x) => { println(x); return List.empty }
             }
           }
@@ -90,22 +89,40 @@ class PasteManager extends PGDaoTrait {
       x => { x.copy(content = x.content.slice(0, 35)) }
     )
   }
-}
-
-/**
- * Paste manager helper object with some additional utilities.
- */
-object PasteManager {
 
   /**
-   * Converts content to markdown.
-   * @param paste The paste with the original content.
-   * @return The paste with the converted content.
+   * Calls the model to get a count.
+   * @return Count or -1 if there was a read issue.
    */
-  def contentToMd(paste: Option[PasteTO]): Option[PasteTO] = {
-    paste match {
-      case Some(x) => Some(x.copy(content = (new PegDownProcessor).markdownToHtml(x.content)))
-      case None => None
+  def countPastes: Int = {
+    pastes.size match {
+      case Success(x) => x
+      case Failure(x) => { println(x); -1 }
+    }
+  }
+
+  /**
+   * Handles creating a paste.
+   * @param ownerId The id of the profile that owns this paste.
+   * @param title The title of the paste.
+   * @param content The content of the paste.
+   * @param storePrivate The mark which determines if the paste is to be public or private.
+   */
+  def createPaste(ownerId: Long, title: String, content: String, storePrivate: Boolean): Paste = {
+    pastes.insert(Paste(None, null, ownerId, title, content, storePrivate)) match {
+      case Success(x) => x
+      case Failure(x) => { println(x); null }
+    }
+  }
+
+  /**
+   * Looks up a paste by it's id.
+   * @param pasteId The pasteId to look for.
+   */
+  def queryPasteByPasteId(pasteId: String): Option[Paste] = {
+    pastes.byPasteId(pasteId) match {
+      case Success(x) => x
+      case Failure(x) => { println(x); None }
     }
   }
 }

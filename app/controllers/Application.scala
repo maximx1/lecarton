@@ -34,10 +34,15 @@ object Application extends Controller {
       }
       case None => null
     }
-    if (verifiedResult != null && verifiedResult.id.get == -1) {
-      Redirect(routes.Application.login) withNewSession
-    } else {
-      Ok(views.html.paste(verifiedResult)(request.session))
+    if(verifiedResult == null) {
+      Ok(views.html.error404()(request.session))
+    }
+    else {
+      if (verifiedResult.id.get == -1) {
+        Redirect(routes.Application.login) withNewSession
+      } else {
+        Ok(views.html.paste(verifiedResult)(request.session))
+      }
     }
   }
 
@@ -63,7 +68,7 @@ object Application extends Controller {
     else {
       Redirect(routes.Application.index) withSession(
         "loggedInUsername" -> result.username,
-        "loggedInUser_id" -> result.id.toString,
+        "loggedInUser_id" -> result.id.get.toString,
         "loggedInUserIsAdmin" -> result.isAdmin.toString
       )
     }

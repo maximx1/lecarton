@@ -1,4 +1,4 @@
-package dao
+package business
 
 import models.{Pastes, Profiles}
 

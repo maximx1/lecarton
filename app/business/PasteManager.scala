@@ -1,7 +1,6 @@
 package business
 
 import scala.util.{Success, Failure}
-import dao.PGDaoTrait
 import models.{Paste}
 
 /**

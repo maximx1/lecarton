@@ -1,6 +1,5 @@
 package business
 
-import dao.PGDaoTrait
 import models.Profile
 import org.mindrot.jbcrypt.BCrypt
 

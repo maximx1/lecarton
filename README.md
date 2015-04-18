@@ -23,14 +23,12 @@ Obviously, clone the git repo
     * Heroku postgres (Or any other postgres host)
 2. You need to set up some env variables in the system:
     * PORT =>
-    * DATABASE_URL => url for the database
-    * DB_USER => The username with granted permissions of CREATE UPDATE DELETE DROP SELECT INSERT (all the basics)
-    * DB_PASS => password
+    * DATABASE_URL => url/username/password for the database
 3. Set up the code with heroku (using [git](http://stackoverflow.com/a/5129733/3183419) or [heroku's signin](https://devcenter.heroku.com/articles/git#creating-a-heroku-remote))
 4. Push via `git push heroku master`
 
 #### Standalone (linux only)
-This will run the app in the background
+This will run the app in the background. You can uncomment out the credentials in in the [conf file](https://github.com/maximx1/lecarton/blob/master/conf/application.conf#L41-42)
 
 1. Run
     * `./jecommande run <portnumber>`

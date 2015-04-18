@@ -1,6 +1,6 @@
-package dao
+package business
 
-import models.{Profiles, Pastes}
+import models.{Pastes, Profiles}
 
 /**
  * Created by justin on 4/15/15.

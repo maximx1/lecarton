@@ -1,6 +1,6 @@
 package test.core
 
-import dao.BaseDaoTrait
+import business.BaseDaoTrait
 import models.{Profiles, Pastes}
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.{BeforeAndAfter, Matchers, FlatSpec}

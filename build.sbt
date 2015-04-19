@@ -24,16 +24,10 @@ libraryDependencies ++= Seq(
   "org.scalamock" %% "scalamock-scalatest-support" % "3.2" % "test"
 )
 
-instrumentSettings
+ScoverageSbtPlugin.ScoverageKeys.coverageMinimum := 90
 
-ScoverageKeys.minimumCoverage := 90
+ScoverageSbtPlugin.ScoverageKeys.coverageFailOnMinimum := true
 
-ScoverageKeys.failOnMinimumCoverage := true
+ScoverageSbtPlugin.ScoverageKeys.coverageExcludedPackages := "<empty>;controllers.*;views.*;models.*"
 
-ScoverageKeys.excludedPackages in ScoverageCompile := "<empty>;controllers.*;views.*"
-
-parallelExecution in Test := false
-
-testOptions in Test += Tests.Argument("-oF")
-
-fork in run := true
+parallelExecution in Test := true

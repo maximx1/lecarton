@@ -67,6 +67,17 @@ class ProfileManagerTest extends BaseTestSpec {
     actual.password should be (null)
   }
 
+  it should "return null if None was returned from the user existance check" in {
+    (profileManager.profiles.byUsername _) expects("AAAA") returning(Failure(new SQLException(dbConnectionError)))
+    profileManager.createUser("AAAA", "", "", false) should be (null)
+  }
+
+  it should "return null if there was a db failure while inserting profile" in {
+    (profileManager.profiles.byUsername _) expects("AAAA") returning(Success(None))
+    (profileManager.profiles.+= _) expects(*) returning(Failure(new SQLException(dbConnectionError)))
+    profileManager.createUser("AAAA", "", "", false) should be (null)
+  }
+
   "A login" should "be able to occur successfully if the moons are aligned" in {
     val expectedResponse = Profile(Some(1), "tom", BCrypt.hashpw("1234", BCrypt.gensalt(4)), "sample@email.com", false)
     (profileManager.profiles.byUsername _) expects("tom") returning(Success(Some(expectedResponse)))
@@ -82,6 +93,11 @@ class ProfileManagerTest extends BaseTestSpec {
     val expectedResponse = Profile(Some(1), "tom", BCrypt.hashpw("1234", BCrypt.gensalt(4)), "sample@email.com", false)
     (profileManager.profiles.byUsername _) expects("tom") returning(Success(Some(expectedResponse)))
     profileManager.attemptLogin("tom", "1235") should be (null)
+  }
+
+  it should "fail, log error, and return null if there is a db error calling profiles by username" in {
+    (profileManager.profiles.byUsername _) expects(*) returning(Failure(new SQLException(dbConnectionError)))
+    profileManager.attemptLogin("tom", "1234") should be (null)
   }
 
   "Count profiles" should "be able to return a count of the profiles" in {

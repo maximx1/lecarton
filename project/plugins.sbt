@@ -1,9 +1,8 @@
 resolvers += "Typesafe repository" at "http://repo.typesafe.com/typesafe/releases/"
 
-// The Play plugin
-addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.3.5")
+resolvers += Classpaths.sbtPluginReleases
 
-// web plugins
+addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.3.5")
 
 addSbtPlugin("com.typesafe.sbt" % "sbt-coffeescript" % "1.0.0")
 
@@ -19,6 +18,6 @@ addSbtPlugin("com.typesafe.sbt" % "sbt-mocha" % "1.0.0")
 
 addSbtPlugin("com.typesafe.sbteclipse" % "sbteclipse-plugin" % "2.5.0")
 
-addSbtPlugin("org.scoverage" %% "sbt-scoverage" % "0.99.2.1")
+addSbtPlugin("org.scoverage" %% "sbt-scoverage" % "1.0.4")
 
 offline := true

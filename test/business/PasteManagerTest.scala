@@ -1,14 +1,17 @@
 package business
 
+import java.sql.SQLException
+
 import models._
 import test.core.BaseTestSpec
 import utils.{ConversionUtils, RandomUtils}
 
-import scala.util.Success
+import scala.util.{Failure, Success}
 
 class PasteManagerTest extends BaseTestSpec {
   val pasteManager: PasteManager = new PasteManager with TestDaoTrait
   val contentFieldPreviewMaxLength = 35
+  val dbConnectionError = "Error connecting to the db"
 
   "Search" should "be able to look up by title" in {
     (pasteManager.pastes.byTitle _) expects ("title") returning(Success(createPasteSearchResult))
@@ -24,6 +27,11 @@ class PasteManagerTest extends BaseTestSpec {
     pasteManager.handlePasteSearch("completely invalid scope", null, None) should have size 0
   }
 
+  it should "log error and return an empty list when db fails looking for title" in {
+    (pasteManager.pastes.byTitle _) expects ("title") returning(Failure(new SQLException(dbConnectionError)))
+    pasteManager.handlePasteSearch("titles", "title", None) should have size 0
+  }
+
   it should "be able to look up by owner" in {
     val testName = "mrOwnerMan"
     (pasteManager.profiles.byUsername _) expects(testName) returning(Success(Some(Profile(Some(1), testName, null, null, false))))
@@ -34,6 +42,18 @@ class PasteManagerTest extends BaseTestSpec {
   it should "return an empty list when owning profile isn't found" in {
     (pasteManager.profiles.byUsername _) expects("mrOwnerMan") returning (null)
     pasteManager.handlePasteSearch("profiles", "mrOwnerMan", None) should have size 0
+  }
+
+  it should "log error and return an empty list when db fails looking for profile before pastes" in {
+    (pasteManager.profiles.byUsername _) expects("mrOwnerMan") returning(Failure(new SQLException(dbConnectionError)))
+    pasteManager.handlePasteSearch("profiles", "mrOwnerMan", None) should have size 0
+  }
+
+  it should "log error and return an empty list when db fails looking for pastes after finding profile" in {
+    val testName = "mrOwnerMan"
+    (pasteManager.profiles.byUsername _) expects(testName) returning(Success(Some(Profile(Some(1), testName, null, null, false))))
+    (pasteManager.pastes.byOwner _) expects (1l) returning(Failure(new SQLException(dbConnectionError)))
+    pasteManager.handlePasteSearch("profiles", testName, None) should have size 0
   }
 
   it should "return an empty list when there are no results when searching by profile owner" in {
@@ -86,6 +106,15 @@ class PasteManagerTest extends BaseTestSpec {
     assert(!actual)
   }
 
+  it should "fail to update when there is a database error updating" in {
+    val pasteId = "asdf"
+    (pasteManager.pastes.byPasteId _) expects (pasteId) returning (Success(Some(Paste(Some(1), pasteId, 1, "", "", true))))
+    (pasteManager.pastes.updateVisibility _) expects(*) returning (Failure(new SQLException(dbConnectionError)))
+    val (actual, message) = pasteManager.updatePasteVisibility(Some("1"), pasteId, false)
+    assert(!actual)
+    message should be (pasteManager.dbError)
+  }
+
   "Markdown content conversion" should "convert a markdown link to markdown" in {
     val actual = ConversionUtils.contentToMd(Some(markdownConvertedExample)).get
     actual.content should be ("<p><a href=\"https://google.com\">google</a></p>")
@@ -102,6 +131,43 @@ class PasteManagerTest extends BaseTestSpec {
   it should "return none if the input TO is none" in {
     val actual = ConversionUtils.contentToMd(None)
     actual should be (None)
+  }
+
+  "Count pastes" should "be able to return a count of the pastes" in {
+    (pasteManager.pastes.size _) expects() returning(Success(100))
+    pasteManager.countPastes should be (100)
+  }
+
+  it should "return -1 and log to fail gracefully" in {
+    (pasteManager.pastes.size _) expects() returning(Failure(new SQLException(dbConnectionError)))
+    pasteManager.countPastes should be (-1)
+  }
+
+  "Create paste" should "return new paste when successfully inserted" in {
+    val paste = markdownConvertedExample
+    (pasteManager.pastes.insert _) expects(*) returning(Success(paste))
+    pasteManager.createPaste(paste.ownerId, paste.title, paste.content, paste.isPrivate) should be (paste)
+  }
+
+  it should "log error and return null if there was anothing wrong in the model layer" in {
+    val paste = markdownConvertedExample
+    (pasteManager.pastes.insert _) expects(*) returning(Failure(new SQLException(dbConnectionError)))
+    pasteManager.createPaste(paste.ownerId, paste.title, paste.content, paste.isPrivate) should be (null)
+  }
+
+  "Query paste" should "return a paste in an option when valid pasteId passed in" in {
+    (pasteManager.pastes.byPasteId _) expects(markdownConvertedExample.pasteId) returning(Success(Some(markdownConvertedExample)))
+    pasteManager.queryPasteByPasteId(markdownConvertedExample.pasteId) should be (Some(markdownConvertedExample))
+  }
+
+  it should "return none if the paste isn't found" in {
+    (pasteManager.pastes.byPasteId _) expects(markdownConvertedExample.pasteId) returning(Success(None))
+    pasteManager.queryPasteByPasteId(markdownConvertedExample.pasteId) should be (None)
+  }
+
+  it should "log and return None if there is a db failure" in {
+    (pasteManager.pastes.byPasteId _) expects(markdownConvertedExample.pasteId) returning(Failure(new SQLException(dbConnectionError)))
+    pasteManager.queryPasteByPasteId(markdownConvertedExample.pasteId) should be (None)
   }
 
   val markdownConvertedExample = Paste(Some(1), "asdf", 1, "title 1", "[google](https://google.com)", false)

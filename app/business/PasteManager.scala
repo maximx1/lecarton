@@ -58,7 +58,6 @@ class PasteManager extends PGDaoTrait {
           pastes.updateVisibility(y.copy(isPrivate = isPrivate)) match {
             case Success(z) => return (true, null)
             case Failure(e) => { println(e); (false, dbError) }
-            case _ => (false, notFound)
           }
         }
         case _ => (false, ownerNotSignedInError)

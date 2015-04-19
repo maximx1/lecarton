@@ -76,7 +76,7 @@ class ProfileManager extends PGDaoTrait {
    * @return Count or -1 if there was a read issue.
    */
   def countProfiles: Int = {
-    pastes.size match {
+    profiles.size match {
       case Success(x) => x
       case Failure(x) => { println(x); -1 }
     }

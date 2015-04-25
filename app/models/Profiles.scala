@@ -17,7 +17,7 @@ case class Profile(
 class ProfilesTable(tag: Tag) extends Table[Profile](tag, "PROFILES") {
   def id = column[Option[Long]]("ID", O.PrimaryKey, O.AutoInc)
   def username = column[String]("USERNAME", O.NotNull)
-  def password = column[String]("PASSWORD", O.NotNull)
+  def password = column[String]("PASSKEY", O.NotNull)
   def email = column[String]("EMAIL", O.NotNull)
   def isAdmin = column[Boolean]("ISADMIN", O.NotNull)
   def * = (id, username, password, email, isAdmin) <> (Profile.tupled, Profile.unapply)

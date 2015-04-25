@@ -1,5 +1,4 @@
 language: scala
 scala:
-- 2.11.1
-script:
-- ./activator clean compile test
+- 2.10.4
+- 2.11.2

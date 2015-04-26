@@ -14,12 +14,12 @@ case class Profile(
   isAdmin: Boolean
 ) extends Model
 
-class ProfilesTable(tag: Tag) extends Table[Profile](tag, "PROFILES") {
-  def id = column[Option[Long]]("ID", O.PrimaryKey, O.AutoInc)
-  def username = column[String]("USERNAME", O.NotNull)
-  def password = column[String]("PASSKEY", O.NotNull)
-  def email = column[String]("EMAIL", O.NotNull)
-  def isAdmin = column[Boolean]("ISADMIN", O.NotNull)
+class ProfilesTable(tag: Tag) extends Table[Profile](tag, "profiles") {
+  def id = column[Option[Long]]("id", O.PrimaryKey, O.AutoInc)
+  def username = column[String]("username", O.NotNull)
+  def password = column[String]("passkey", O.NotNull)
+  def email = column[String]("email", O.NotNull)
+  def isAdmin = column[Boolean]("isadmin", O.NotNull)
   def * = (id, username, password, email, isAdmin) <> (Profile.tupled, Profile.unapply)
 }
 

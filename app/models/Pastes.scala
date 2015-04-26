@@ -18,13 +18,13 @@ case class Paste(
   isPrivate: Boolean
 ) extends Model
 
-class PastesTable(tag: Tag) extends Table[Paste](tag, "PASTES") {
-  def id = column[Option[Long]]("ID", O.PrimaryKey, O.AutoInc)
-  def pasteId = column[String]("PASTEID", O.NotNull)
-  def ownerId = column[Long]("OWNERID", O.NotNull)
-  def title = column[String]("TITLE", O.NotNull)
-  def content = column[String]("CONTENT", O.NotNull)
-  def isPrivate = column[Boolean]("ISPRIVATE", O.NotNull)
+class PastesTable(tag: Tag) extends Table[Paste](tag, "pastes") {
+  def id = column[Option[Long]]("id", O.PrimaryKey, O.AutoInc)
+  def pasteId = column[String]("pasteid", O.NotNull)
+  def ownerId = column[Long]("ownerid", O.NotNull)
+  def title = column[String]("title", O.NotNull)
+  def content = column[String]("content", O.NotNull)
+  def isPrivate = column[Boolean]("isprivate", O.NotNull)
   def * = (id, pasteId, ownerId, title, content, isPrivate) <> (Paste.tupled, Paste.unapply)
 }
 

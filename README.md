@@ -15,7 +15,11 @@ This is another pastebin clone that I wish to make with added functionality like
 This amounts to a standalone gist.
 
 ### Deploy
-Obviously, clone the git repo 
+1. Obviously, clone the git repo
+2. *Important:* You will want to set up the anon password before deploy
+    * `cd passkeygen`
+    * `./generate_password.sh build && ./generate_password.sh run <new_password>`
+    * Copy the generated hash into the INSERT statement in `conf/evolutions/default/1.sql` where it reads 'CHANGE_ME'
 
 #### Heroku
 1. Set up a heroku instance with the following either through heroku website or using heroku create:

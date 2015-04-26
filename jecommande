@@ -8,7 +8,7 @@ then
    rm -rf lecarton-1.0-SNAPSHOT/
    ./activator dist
    unzip target/universal/lecarton-1.0-SNAPSHOT.zip
-   nohup lecarton-1.0-SNAPSHOT/bin/lecarton -Ddb.default.url="jdbc:h2:../.data/lecarton" -DapplyEvolutions.default=true -Dhttp.port=$2 -J-Xms32M -J-Xmx64M >>nohup.out 2>&1 &
+   nohup lecarton-1.0-SNAPSHOT/bin/lecarton -Ddb.default.url="jdbc:h2:../.data/lecarton;DATABASE_TO_UPPER=false" -DapplyEvolutions.default=true -Dhttp.port=$2 -J-Xms32M -J-Xmx64M >>nohup.out 2>&1 &
    echo $! > $pidfile
 elif [ "$1" = "build" ]
 then

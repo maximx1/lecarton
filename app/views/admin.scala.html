@@ -1,4 +1,4 @@
-@(pasteCount: Long, profileCount: Long)(implicit session: play.api.mvc.Session)
+@(pasteCount: Long, profileCount: Long, profiles: List[Profile])(implicit session: play.api.mvc.Session)
 @header("profile: " )
 	<body>
         <link rel="stylesheet" type="text/css" href='@routes.Assets.at("stylesheets/main.css")'>
@@ -13,6 +13,12 @@
 		<div id="mainContainer">
 		    <h2>Paste Count: @pasteCount</h2>
             <h2>Profile Count: @profileCount</h2>
+            <h2>Profiles</h2>
+            <ul>
+            @profiles.map { p =>
+                <li><div>@p.username - @p.isAdmin</div></li>
+            }
+            </ul>
 		</div>
 	</body>
 </html>

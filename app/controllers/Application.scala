@@ -135,7 +135,7 @@ object Application extends Controller {
   def loadAdmin = Action { implicit request =>
     val isUserAdmin = request.session.get("loggedInUserIsAdmin")
     if(parseIsAdminFromFormIfUserIsAdmin(isUserAdmin)) {
-      Ok(views.html.admin((new PasteManager).countPastes, (new ProfileManager).countProfiles)(request.session))
+      Ok(views.html.admin((new PasteManager).countPastes, (new ProfileManager).countProfiles, (new ProfileManager).profiles.all.getOrElse(List.empty))(request.session))
     }
     else {
       Ok(views.html.error404()(request.session))

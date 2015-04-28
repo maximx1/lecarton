@@ -10,6 +10,11 @@ import scala.util.{Failure, Success}
  * Created by justin on 11/7/14.
  */
 class ProfileManager extends PGDaoTrait {
+  
+  val userNotSignedInError = "User not logged in"
+  val loggedInUserNotAdminError = "Logged in user isn't admin"
+  val currentUserIsUserBeingUpdatedError = "The current user is the user that is being updated"
+  val userNotFoundError = "The user is not found"
 
   def queryUserProfileByUsername(username: String): Option[Profile] = {
     profiles.byUsername(username) match {
@@ -79,6 +84,37 @@ class ProfileManager extends PGDaoTrait {
     profiles.size match {
       case Success(x) => x
       case Failure(x) => { println(x); -1 }
+    }
+  }
+
+  /**
+   * Updates user admin status.
+   * @param userId The user Id of the person to update.
+   * @param newStatus The status to update to.
+   * @param currentUser The current logged in user.
+   * @return
+   */
+  def updateUserAdminStatus(userId: Long, newStatus: Boolean, currentUser: Option[Profile]): (Boolean, String) = {
+    currentUser match {
+      case Some(profile) => {
+        profile.id match {
+          case Some(id) if id == userId => (false, currentUserIsUserBeingUpdatedError)
+          case Some(id) if id != userId => {
+            profile.isAdmin match {
+              case true => {
+                profiles.updateAdminStatus(userId, newStatus) match {
+                  case Success(updated) if updated > 0 => (true, null)
+                  case Success(updated) if updated == 0 => (false, userNotFoundError)
+                  case Failure(e) => { println(e); (false, dbError) }
+                }
+              }
+              case false => (false, loggedInUserNotAdminError)
+            }
+          }
+          case None => (false, userNotSignedInError)
+        }
+      }
+      case None => (false, userNotSignedInError)
     }
   }
 }

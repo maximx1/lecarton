@@ -125,6 +125,33 @@ class ProfileManagerTest extends BaseTestSpec {
     profileManager.queryUserProfileByUsername("AAAA") should be (None)
   }
 
+  "Updating user's admin status" should "return true and null if logged in user is admin and separate from updatee and db call successful" in {
+    (profileManager.profiles.updateAdminStatus _) expects(1l, true) returning(Success(1))
+    profileManager.updateUserAdminStatus(1, true, Some(Profile(Some(2), null, null, null, true))) should be(true, null)
+  }
+
+  it should "fail to update user admin status when the user to be updated is the user logged in" in {
+    profileManager.updateUserAdminStatus(1, true, Some(Profile(Some(1), null, null, null, true))) should be(false, profileManager.currentUserIsUserBeingUpdatedError)
+  }
+
+  it should "fail to update user admin status if there is no logged in user" in {
+    profileManager.updateUserAdminStatus(1, true, None) should be(false, profileManager.userNotSignedInError)
+  }
+
+  it should "fail to update user admin status if the logged in user isn't admin" in {
+    profileManager.updateUserAdminStatus(1, true, Some(Profile(Some(2), null, null, null, false))) should be(false, profileManager.loggedInUserNotAdminError)
+  }
+
+  it should "fail to update user admin status if the requested user isn't found" in {
+    (profileManager.profiles.updateAdminStatus _) expects(1l, true) returning(Success(0))
+    profileManager.updateUserAdminStatus(1, true, Some(Profile(Some(2), null, null, null, true))) should be(false, profileManager.userNotFoundError)
+  }
+
+  it should "fail to update user admin status and log error if the database has an error" in {
+    (profileManager.profiles.updateAdminStatus _) expects(1l, true) returning(Failure(new SQLException(dbConnectionError)))
+    profileManager.updateUserAdminStatus(1, true, Some(Profile(Some(2), null, null, null, true))) should be(false, profileManager.dbError)
+  }
+
   def successfulCreateUserBase(isAdmin: Boolean=false) = {
     (profileManager.profiles.byUsername _) expects("tom") returning(Success(None))
     (profileManager.profiles += _) expects(Profile(None, "tom", "1234", "sample@email.com", isAdmin)) returning(Success(1))

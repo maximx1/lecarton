@@ -9,7 +9,6 @@ import models.{Paste}
  */
 class PasteManager extends PGDaoTrait {
   val ownerNotSignedInError = "Owner not signed in"
-  val dbError = "Database Error"
   val notFound = "Entry not found"
   val failUnspecified = "Unspecified error doing action"
 

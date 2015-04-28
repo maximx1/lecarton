@@ -39,4 +39,10 @@ class Profiles extends BaseSlickTrait[Profile] {
       model.filter(_.id === id).list.headOption
     }
   }
+
+  def updateAdminStatus(id: Long, newStatus: Boolean): Try[Int] = Try {
+    DB withSession { implicit session =>
+      model.filter(_.id === id).map(_.isAdmin).update(newStatus)
+    }
+  }
 }

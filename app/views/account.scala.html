@@ -1,0 +1,52 @@
+@(errorMessage: String)(implicit session: play.api.mvc.Session)
+
+@import helper._
+
+@header("Pastes: Change Password")
+	<body>
+		<link rel="stylesheet" type="text/css" href='@routes.Assets.at("stylesheets/main.css")'>
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+        @titlebar()(session)
+        <div class="container">
+            <div id="loginForm">
+                <form method="post" autocomplete="on" action="/login">
+                    <table>
+                        <th colspan="2"><h1>ChangePassword</h1></th>
+                        <tr>
+                            <td class="errorMessage" colspan="2">@if(errorMessage == null) { &nbsp } else { @errorMessage }</td>
+                        </tr>
+                        <tr>
+                            <td class="loginFormLabel">
+                                Old Password
+                            </td>
+                            <td>
+                                <input id="usernameField" type="text" name="oldPassword">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="loginFormLabel">
+                                New Password
+                            </td>
+                            <td class="loginFormFields">
+                                <input id="passwordField1" type="password" name="newPassword1">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="loginFormLabel">
+                                New Password Again
+                            </td>
+                            <td class="loginFormFields">
+                                <input id="passwordField2" type="password" name="newPassword2">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="2"><input id="submitbutton" type="submit" value="Login"></td>
+                        </tr>
+                    </table>
+                </form>
+            </div>
+		</div>
+	</body>
+</html>

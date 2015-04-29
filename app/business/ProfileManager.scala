@@ -16,6 +16,23 @@ class ProfileManager extends PGDaoTrait {
   val currentUserIsUserBeingUpdatedError = "The current user is the user that is being updated"
   val userNotFoundError = "The user is not found"
 
+  /**
+   * Queries a user by id
+   * @param id The id to look for.
+   * @return The profile
+   */
+  def queryUserProfileById(id: Long): Option[Profile] = {
+    profiles.byId(id) match {
+      case Success(x) => x
+      case Failure(x) => { println(x); None }
+    }
+  }
+
+  /**
+   * Queries a user by username
+   * @param username The username to look for.
+   * @return The profile
+   */
   def queryUserProfileByUsername(username: String): Option[Profile] = {
     profiles.byUsername(username) match {
       case Success(x) => x

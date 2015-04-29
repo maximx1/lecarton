@@ -139,12 +139,18 @@ object Application extends Controller {
     }
     else {
       Ok(views.html.error404()(request.session))
-      
     }
   }
   
   def parseIsAdminFromFormIfUserIsAdmin(isUserAdmin: Option[String]): Boolean = isUserAdmin match {
     case Some(x) => x == "true"
     case None => false
+  }
+
+  def userChangePassword = Action { implicit request =>
+    request.session.get("loggedInUser_id") match {
+      case Some(id) => Ok(views.html.account(null)(request.session))
+      case None => Redirect(routes.Application.login)
+    }
   }
 }

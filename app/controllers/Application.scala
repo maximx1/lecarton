@@ -147,10 +147,12 @@ object Application extends Controller {
     case None => false
   }
 
-  def userChangePassword = Action { implicit request =>
+  def loadAccount = Action { implicit request =>
     request.session.get("loggedInUser_id") match {
       case Some(id) => Ok(views.html.account(null)(request.session))
       case None => Redirect(routes.Application.login)
     }
   }
+
+  def attemptAccountUpdate = TODO
 }

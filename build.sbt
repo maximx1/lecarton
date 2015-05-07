@@ -13,6 +13,7 @@ libraryDependencies ++= Seq(
   anorm,
   cache,
   ws,
+  filters,
   "org.postgresql" % "postgresql" % "9.4-1200-jdbc41",
   "org.scalatest" % "scalatest_2.11" % "2.2.1" % "test",
   "org.mindrot" % "jbcrypt" % "0.3m",

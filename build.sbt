@@ -6,13 +6,12 @@ lazy val root = (project in file(".")).enablePlugins(PlayScala)
 
 scalaVersion := "2.11.1"
 
-scalacOptions += "-target:jvm-1.6"
-
 libraryDependencies ++= Seq(
   jdbc,
   anorm,
   cache,
   ws,
+  filters,
   "org.postgresql" % "postgresql" % "9.4-1200-jdbc41",
   "org.scalatest" % "scalatest_2.11" % "2.2.1" % "test",
   "org.mindrot" % "jbcrypt" % "0.3m",

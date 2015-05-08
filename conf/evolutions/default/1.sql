@@ -21,7 +21,7 @@ create table pastes(
 	foreign key(ownerid) references profiles(id)
 );
 
-insert into profiles(id, username, passkey, email, isadmin) values(default, 'anon', 'CHANGE_ME', 'anon@sample.com', true)
+insert into profiles(id, username, passkey, email, isadmin) values(default, 'anon', '$2a$04$kdRLRHJXp8T6tgfSdVIzIOZxFCgCzlx4pXs0vKNcDHNfhRgd4vQXK', 'anon@sample.com', true)
 
 # --- !Downs
 drop table if exists pastes;

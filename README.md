@@ -16,10 +16,10 @@ This amounts to a standalone gist.
 
 ### Deploy
 1. Obviously, clone the git repo
-2. *Important:* You will want to set up the anon password before deploy
+2. You can change the anon password before deploy (original password is 'hello')
     * `cd passkeygen`
     * `./generate_password.sh build && ./generate_password.sh run <new_password>`
-    * Copy the generated hash into the INSERT statement in `conf/evolutions/default/1.sql` where it reads 'CHANGE_ME'
+    * Copy the generated hash into the INSERT statement in `conf/evolutions/default/1.sql` where it reads '$2a$04$kdRLRHJXp8T6tgfSdVIzIOZxFCgCzlx4pXs0vKNcDHNfhRgd4vQXK'
 
 #### Heroku
 1. Set up a heroku instance with the following either through heroku website or using heroku create:

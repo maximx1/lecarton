@@ -1,0 +1,54 @@
+@(accountForm: Form[forms.AccountFormData])(implicit session: play.api.mvc.Session)
+
+@import helper._
+
+@header("Pastes: Change Password")
+	<body>
+		<link rel="stylesheet" type="text/css" href='@routes.Assets.at("stylesheets/main.css")'>
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+        @titlebar()(session)
+        <div class="container">
+            <div id="loginForm">
+                @form(action = routes.Application.attemptAccountUpdate, 'autocomplete -> "on") {
+                    <table>
+                        <th colspan="2"><h1>ChangePassword</h1></th>
+                        <tr>
+                            @accountForm.globalError.map{error =>
+                                <td class="errorMessage" colspan="2">@error.message</td>
+                            }
+                        </tr>
+                        <tr>
+                            <td class="loginFormLabel">
+                                Old Password
+                            </td>
+                            <td>
+                                @inputPassword(accountForm("oldPassword"), 'id -> "usernameField", '_label -> null)
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="loginFormLabel">
+                                New Password
+                            </td>
+                            <td class="loginFormFields">
+                                @inputPassword(accountForm("newPassword1"), 'id -> "passwordField1", '_label -> null)
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="loginFormLabel">
+                                New Password Again
+                            </td>
+                            <td class="loginFormFields">
+                                @inputPassword(accountForm("newPassword2"), 'id -> "passwordField2", '_label -> null)
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="2"><input id="submitbutton" type="submit" value="Login"></td>
+                        </tr>
+                    </table>
+                }
+            </div>
+		</div>
+	</body>
+</html>

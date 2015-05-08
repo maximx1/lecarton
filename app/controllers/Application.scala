@@ -139,12 +139,32 @@ object Application extends Controller {
     }
     else {
       Ok(views.html.error404()(request.session))
-      
     }
   }
   
   def parseIsAdminFromFormIfUserIsAdmin(isUserAdmin: Option[String]): Boolean = isUserAdmin match {
     case Some(x) => x == "true"
     case None => false
+  }
+
+  def loadAccount = Action { implicit request =>
+    request.session.get("loggedInUser_id") match {
+      case Some(id) => Ok(views.html.account(updateAccountForm.fill(AccountFormData("", "", "")))(request.session))
+      case None => Redirect(routes.Application.login)
+    }
+  }
+
+  def attemptAccountUpdate = Action { implicit request =>
+    updateAccountForm.bindFromRequest.fold(
+      formWithErrors => BadRequest(views.html.account(formWithErrors)(request.session)),
+      form => form match {
+        case (x) if x.newPassword1 == x.newPassword2 => {
+          val id = request.session.get("loggedInUser_id")
+          (new ProfileManager).updateUserPassword(id.get.toLong, x.oldPassword, x.newPassword1)
+          Ok(views.html.account(updateAccountForm.fill(AccountFormData("", "", "")).withGlobalError("Successfully changes password"))(request.session))
+        }
+        case _ => BadRequest(views.html.account(updateAccountForm.fill(form).withGlobalError("New Passwords don't match!"))(request.session))
+      }
+    )
   }
 }

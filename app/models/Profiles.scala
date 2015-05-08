@@ -46,9 +46,15 @@ class Profiles extends BaseSlickTrait[Profile] {
     }
   }
 
-  def updatePassword(id: Long, newPassword: String): Try[Int] = Try {
+  def updatePassword(id: Long, oldPassword: String, newPassword: String): Try[Int] = Try {
     DB.withSession{ implicit session =>
-      model.filter(_.id === id).map(_.password).update(BCrypt.hashpw(newPassword, BCrypt.gensalt(4)))
+      model.filter(x => x.id === id).list.headOption match {
+        case Some(x) if BCrypt.checkpw(oldPassword, x.password.toString()) => {
+          model.filter(x => x.id === id).map(_.password).update(BCrypt.hashpw(newPassword, BCrypt.gensalt(4)))
+        }
+        case None => throw new IndexOutOfBoundsException
+        case _ => throw new IndexOutOfBoundsException
+      }
     }
   }
 }

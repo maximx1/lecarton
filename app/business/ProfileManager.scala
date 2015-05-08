@@ -135,4 +135,10 @@ class ProfileManager extends PGDaoTrait {
     }
   }
 
+  def updateUserPassword(userId: Long, oldPassword: String, newPassword: String): Int ={
+    profiles.updatePassword(userId, oldPassword, newPassword) match {
+      case Success(x) => x
+      case Failure(e) => { println(e); -1 }
+    }
+  }
 }

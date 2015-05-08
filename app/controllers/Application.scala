@@ -158,8 +158,9 @@ object Application extends Controller {
     updateAccountForm.bindFromRequest.fold(
       formWithErrors => BadRequest(views.html.account(formWithErrors)(request.session)),
       form => form match {
-        case (x) if x.newPassword1 == x.oldPassword => {
-          //(new ProfileManager).
+        case (x) if x.newPassword1 == x.newPassword2 => {
+          val id = request.session.get("loggedInUser_id")
+          (new ProfileManager).updateUserPassword(id.get.toLong, x.oldPassword, x.newPassword1)
           Ok(views.html.account(updateAccountForm.fill(AccountFormData("", "", "")).withGlobalError("Successfully changes password"))(request.session))
         }
         case _ => BadRequest(views.html.account(updateAccountForm.fill(form).withGlobalError("New Passwords don't match!"))(request.session))

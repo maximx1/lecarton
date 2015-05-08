@@ -134,4 +134,5 @@ class ProfileManager extends PGDaoTrait {
       case None => (false, userNotSignedInError)
     }
   }
+
 }

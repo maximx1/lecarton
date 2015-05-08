@@ -31,4 +31,14 @@ package object forms {
       "isAdmin" -> optional(text)
     )
   )
+
+  case class AccountFormData(oldPassword: String, newPassword1: String, newPassword2: String)
+
+  val updateAccountForm = Form(
+    mapping(
+      "oldPassword" -> text,
+      "newPassword1" -> nonEmptyText,
+      "newPassword2" -> nonEmptyText
+    )(AccountFormData.apply)(AccountFormData.unapply)
+  )
 }

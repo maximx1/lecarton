@@ -45,4 +45,10 @@ class Profiles extends BaseSlickTrait[Profile] {
       model.filter(_.id === id).map(_.isAdmin).update(newStatus)
     }
   }
+
+  def updatePassword(id: Long, newPassword: String): Try[Int] = Try {
+    DB.withSession{ implicit session =>
+      model.filter(_.id === id).map(_.password).update(BCrypt.hashpw(newPassword, BCrypt.gensalt(4)))
+    }
+  }
 }

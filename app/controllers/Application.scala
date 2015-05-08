@@ -149,10 +149,21 @@ object Application extends Controller {
 
   def loadAccount = Action { implicit request =>
     request.session.get("loggedInUser_id") match {
-      case Some(id) => Ok(views.html.account(null)(request.session))
+      case Some(id) => Ok(views.html.account(updateAccountForm.fill(AccountFormData("", "", "")))(request.session))
       case None => Redirect(routes.Application.login)
     }
   }
 
-  def attemptAccountUpdate = TODO
+  def attemptAccountUpdate = Action { implicit request =>
+    updateAccountForm.bindFromRequest.fold(
+      formWithErrors => BadRequest(views.html.account(formWithErrors)(request.session)),
+      form => form match {
+        case (x) if x.newPassword1 == x.oldPassword => {
+          //(new ProfileManager).
+          Ok(views.html.account(updateAccountForm.fill(AccountFormData("", "", "")).withGlobalError("Successfully changes password"))(request.session))
+        }
+        case _ => BadRequest(views.html.account(updateAccountForm.fill(form).withGlobalError("New Passwords don't match!"))(request.session))
+      }
+    )
+  }
 }

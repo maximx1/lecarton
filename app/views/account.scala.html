@@ -1,4 +1,4 @@
-@(errorMessage: String)(implicit session: play.api.mvc.Session)
+@(accountForm: Form[forms.AccountFormData])(implicit session: play.api.mvc.Session)
 
 @import helper._
 
@@ -11,18 +11,20 @@
         @titlebar()(session)
         <div class="container">
             <div id="loginForm">
-                <form method="post" autocomplete="on" action="/me/account">
+                @form(action = routes.Application.attemptAccountUpdate, 'autocomplete -> "on") {
                     <table>
                         <th colspan="2"><h1>ChangePassword</h1></th>
                         <tr>
-                            <td class="errorMessage" colspan="2">@if(errorMessage == null) { &nbsp } else { @errorMessage }</td>
+                            @accountForm.globalError.map{error =>
+                                <td class="errorMessage" colspan="2">@error.message</td>
+                            }
                         </tr>
                         <tr>
                             <td class="loginFormLabel">
                                 Old Password
                             </td>
                             <td>
-                                <input id="usernameField" type="text" name="oldPassword">
+                                @inputPassword(accountForm("oldPassword"), 'id -> "usernameField", '_label -> null)
                             </td>
                         </tr>
                         <tr>
@@ -30,7 +32,7 @@
                                 New Password
                             </td>
                             <td class="loginFormFields">
-                                <input id="passwordField1" type="password" name="newPassword1">
+                                @inputPassword(accountForm("newPassword1"), 'id -> "passwordField1", '_label -> null)
                             </td>
                         </tr>
                         <tr>
@@ -38,14 +40,14 @@
                                 New Password Again
                             </td>
                             <td class="loginFormFields">
-                                <input id="passwordField2" type="password" name="newPassword2">
+                                @inputPassword(accountForm("newPassword2"), 'id -> "passwordField2", '_label -> null)
                             </td>
                         </tr>
                         <tr>
                             <td colspan="2"><input id="submitbutton" type="submit" value="Login"></td>
                         </tr>
                     </table>
-                </form>
+                }
             </div>
 		</div>
 	</body>

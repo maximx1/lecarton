@@ -115,13 +115,13 @@ class ProfileManagerTest extends BaseTestSpec {
     profileManager.queryUserProfileById(1) should be (Some(testProfile))
   }
 
-  it should "return None if a profile is found using id" in {
-    (profileManager.profiles.byUsername _) expects(*) returning(Success(None))
+  it should "return None if a profile is not found using id" in {
+    (profileManager.profiles.byId _) expects(*) returning(Success(None))
     profileManager.queryUserProfileById(1) should be (None)
   }
 
   it should "log and return None should there be a failure calling the db using id" in {
-    (profileManager.profiles.byUsername _) expects(*) returning(Failure(new SQLException(dbConnectionError)))
+    (profileManager.profiles.byId _) expects(*) returning(Failure(new SQLException(dbConnectionError)))
     profileManager.queryUserProfileById(1) should be (None)
   }
 
